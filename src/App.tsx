@@ -5,9 +5,7 @@ import {
   Heart,
   Info,
   ListMusic,
-  Monitor,
   Music2,
-  Moon,
   Pause,
   Play,
   Plus,
@@ -15,7 +13,6 @@ import {
   Search,
   SkipBack,
   SkipForward,
-  Sun,
   Trash2,
   Upload,
   Volume2,
@@ -38,6 +35,8 @@ import {
   parseStationList,
 } from './stations'
 import type { Station } from './stations'
+import { WadsThemeSwitch } from './WadsThemeSwitch'
+import { loadWadsThemeMode, syncWadsTheme, type WadsThemeMode } from './wads-theme'
 
 const STATIONS_STORAGE_KEY = 'wadsradio.stations.v1'
 const VOLUME_STORAGE_KEY = 'wadsradio.volume.v1'
@@ -46,7 +45,6 @@ const THEME_STORAGE_KEY = 'wadsradio.theme.v1'
 
 type PlaybackStatus = 'idle' | 'loading' | 'playing' | 'paused' | 'error'
 type MetadataStatus = 'idle' | 'loading' | 'ready' | 'unavailable'
-type ThemeMode = 'system' | 'light' | 'dark'
 
 type MediaInfo = {
   ok: boolean
@@ -97,7 +95,7 @@ function App() {
   const [metadataStatus, setMetadataStatus] = useState<MetadataStatus>('idle')
   const [metadataRefreshToken, setMetadataRefreshToken] = useState(0)
   const [draggingStationId, setDraggingStationId] = useState<string | null>(null)
-  const [themeMode, setThemeMode] = useState<ThemeMode>(() => loadThemeMode())
+  const [themeMode, setThemeMode] = useState<WadsThemeMode>(() => loadWadsThemeMode(THEME_STORAGE_KEY))
 
   const currentStation =
     stations.find((station) => station.id === currentStationId) ?? stations[0] ?? DEFAULT_STATIONS[0]
@@ -128,22 +126,7 @@ function App() {
   }, [stations])
 
   useEffect(() => {
-    localStorage.setItem(THEME_STORAGE_KEY, themeMode)
-
-    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
-    const applyTheme = () => {
-      const resolvedTheme: Exclude<ThemeMode, 'system'> =
-        themeMode === 'system' ? (systemTheme.matches ? 'dark' : 'light') : themeMode
-
-      document.documentElement.dataset.theme = resolvedTheme
-    }
-
-    applyTheme()
-
-    if (themeMode !== 'system') return undefined
-
-    systemTheme.addEventListener('change', applyTheme)
-    return () => systemTheme.removeEventListener('change', applyTheme)
+    return syncWadsTheme(THEME_STORAGE_KEY, themeMode)
   }, [themeMode])
 
   useEffect(() => {
@@ -448,38 +431,7 @@ function App() {
           </div>
         </div>
         <div className="topbar-actions">
-          <div className="theme-switch" aria-label="Color theme">
-            <button
-              className={themeMode === 'system' ? 'active' : ''}
-              type="button"
-              title="Follow system theme"
-              aria-label="Follow system theme"
-              aria-pressed={themeMode === 'system'}
-              onClick={() => setThemeMode('system')}
-            >
-              <Monitor size={15} />
-            </button>
-            <button
-              className={themeMode === 'light' ? 'active' : ''}
-              type="button"
-              title="Use light theme"
-              aria-label="Use light theme"
-              aria-pressed={themeMode === 'light'}
-              onClick={() => setThemeMode('light')}
-            >
-              <Sun size={15} />
-            </button>
-            <button
-              className={themeMode === 'dark' ? 'active' : ''}
-              type="button"
-              title="Use dark theme"
-              aria-label="Use dark theme"
-              aria-pressed={themeMode === 'dark'}
-              onClick={() => setThemeMode('dark')}
-            >
-              <Moon size={15} />
-            </button>
-          </div>
+          <WadsThemeSwitch value={themeMode} onChange={setThemeMode} />
           <button className="icon-button" type="button" title="Import stations" onClick={() => setImportOpen(true)}>
             <Upload size={19} />
           </button>
@@ -796,15 +748,6 @@ function loadVolume(): number {
 
 function loadLastStationId(): string {
   return localStorage.getItem(LAST_STATION_STORAGE_KEY) ?? ''
-}
-
-function loadThemeMode(): ThemeMode {
-  try {
-    const stored = localStorage.getItem(THEME_STORAGE_KEY)
-    return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system'
-  } catch {
-    return 'system'
-  }
 }
 
 function mergeStations(current: Station[], incoming: Station[]): Station[] {

@@ -75,44 +75,6 @@
   gap: 8px;
 }
 
-.theme-switch {
-  display: inline-grid;
-  grid-template-columns: repeat(3, 30px);
-  gap: 3px;
-  min-height: 38px;
-  padding: 3px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg-soft);
-}
-
-.theme-switch button {
-  width: 30px;
-  height: 30px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  color: var(--muted);
-  background: transparent;
-  cursor: pointer;
-  transition:
-    background 140ms ease,
-    color 140ms ease,
-    transform 140ms ease;
-}
-
-.theme-switch button:hover {
-  color: var(--heading);
-  background: var(--button);
-}
-
-.theme-switch button.active {
-  color: var(--ink);
-  background: var(--accent);
-}
-
 .radio-layout {
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto 32px;
@@ -478,7 +440,7 @@
 .primary-button:hover,
 .secondary-button:hover,
 .segmented button:hover,
-.theme-switch button:hover {
+.wads-theme-switch button:hover {
   transform: translateY(-1px);
   border-color: var(--border-strong);
 }
@@ -488,7 +450,7 @@
 .primary-button:focus-visible,
 .secondary-button:focus-visible,
 .segmented button:focus-visible,
-.theme-switch button:focus-visible,
+.wads-theme-switch button:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 .drop-zone:focus-visible {
@@ -1007,13 +969,13 @@ textarea {
     height: 38px;
   }
 
-  .theme-switch {
+  .wads-theme-switch {
     grid-template-columns: repeat(3, 28px);
     min-height: 36px;
     padding: 3px;
   }
 
-  .theme-switch button {
+  .wads-theme-switch button {
     width: 28px;
     height: 28px;
   }
