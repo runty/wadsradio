@@ -1,10 +1,13 @@
 import {
   Download,
   FileUp,
+  GripVertical,
   Heart,
   Info,
   ListMusic,
+  Monitor,
   Music2,
+  Moon,
   Pause,
   Play,
   Plus,
@@ -12,13 +15,21 @@ import {
   Search,
   SkipBack,
   SkipForward,
+  Sun,
   Trash2,
   Upload,
   Volume2,
   X,
 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { ChangeEvent, DragEvent, FormEvent } from 'react'
+import type {
+  CSSProperties,
+  ChangeEvent,
+  DragEvent,
+  FormEvent,
+  KeyboardEvent,
+  PointerEvent as ReactPointerEvent,
+} from 'react'
 import './App.css'
 import {
   DEFAULT_STATIONS,
@@ -31,9 +42,11 @@ import type { Station } from './stations'
 const STATIONS_STORAGE_KEY = 'wadsradio.stations.v1'
 const VOLUME_STORAGE_KEY = 'wadsradio.volume.v1'
 const LAST_STATION_STORAGE_KEY = 'wadsradio.lastStation.v1'
+const THEME_STORAGE_KEY = 'wadsradio.theme.v1'
 
 type PlaybackStatus = 'idle' | 'loading' | 'playing' | 'paused' | 'error'
 type MetadataStatus = 'idle' | 'loading' | 'ready' | 'unavailable'
+type ThemeMode = 'system' | 'light' | 'dark'
 
 type MediaInfo = {
   ok: boolean
@@ -66,6 +79,9 @@ type MediaInfo = {
 function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const importFileRef = useRef<HTMLInputElement | null>(null)
+  const stationListRef = useRef<HTMLDivElement | null>(null)
+  const draggingStationIdRef = useRef<string | null>(null)
+  const cleanupStationDragRef = useRef<(() => void) | null>(null)
   const [stations, setStations] = useState<Station[]>(() => loadStations())
   const [currentStationId, setCurrentStationId] = useState(() => loadLastStationId())
   const [query, setQuery] = useState('')
@@ -80,6 +96,8 @@ function App() {
   const [mediaInfo, setMediaInfo] = useState<MediaInfo | null>(null)
   const [metadataStatus, setMetadataStatus] = useState<MetadataStatus>('idle')
   const [metadataRefreshToken, setMetadataRefreshToken] = useState(0)
+  const [draggingStationId, setDraggingStationId] = useState<string | null>(null)
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => loadThemeMode())
 
   const currentStation =
     stations.find((station) => station.id === currentStationId) ?? stations[0] ?? DEFAULT_STATIONS[0]
@@ -108,6 +126,29 @@ function App() {
   useEffect(() => {
     localStorage.setItem(STATIONS_STORAGE_KEY, JSON.stringify(stations))
   }, [stations])
+
+  useEffect(() => {
+    localStorage.setItem(THEME_STORAGE_KEY, themeMode)
+
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+    const applyTheme = () => {
+      const resolvedTheme: Exclude<ThemeMode, 'system'> =
+        themeMode === 'system' ? (systemTheme.matches ? 'dark' : 'light') : themeMode
+
+      document.documentElement.dataset.theme = resolvedTheme
+    }
+
+    applyTheme()
+
+    if (themeMode !== 'system') return undefined
+
+    systemTheme.addEventListener('change', applyTheme)
+    return () => systemTheme.removeEventListener('change', applyTheme)
+  }, [themeMode])
+
+  useEffect(() => {
+    return () => cleanupStationDragRef.current?.()
+  }, [])
 
   useEffect(() => {
     localStorage.setItem(VOLUME_STORAGE_KEY, String(volume))
@@ -223,6 +264,109 @@ function App() {
     })
   }
 
+  function beginStationDrag(event: ReactPointerEvent<HTMLButtonElement>, stationId: string) {
+    event.preventDefault()
+    event.stopPropagation()
+    cleanupStationDragRef.current?.()
+
+    const pointerId = event.pointerId
+    draggingStationIdRef.current = stationId
+    setDraggingStationId(stationId)
+    document.body.classList.add('station-reordering')
+
+    const moveDraggedStation = (clientY: number) => {
+      const draggedStationId = draggingStationIdRef.current
+      if (!draggedStationId) return
+
+      const target = getStationDropTarget(clientY)
+      if (!target || target.stationId === draggedStationId) return
+
+      moveStationToTarget(draggedStationId, target.stationId, target.placement)
+    }
+
+    const handlePointerMove = (moveEvent: globalThis.PointerEvent) => {
+      if (moveEvent.pointerId !== pointerId) return
+
+      moveEvent.preventDefault()
+      moveDraggedStation(moveEvent.clientY)
+    }
+
+    const stopDrag = () => {
+      document.removeEventListener('pointermove', handlePointerMove)
+      document.removeEventListener('pointerup', handlePointerEnd)
+      document.removeEventListener('pointercancel', handlePointerEnd)
+      window.removeEventListener('blur', stopDrag)
+      document.body.classList.remove('station-reordering')
+      draggingStationIdRef.current = null
+      cleanupStationDragRef.current = null
+      setDraggingStationId(null)
+    }
+
+    const handlePointerEnd = (endEvent: globalThis.PointerEvent) => {
+      if (endEvent.pointerId === pointerId) stopDrag()
+    }
+
+    document.addEventListener('pointermove', handlePointerMove, { passive: false })
+    document.addEventListener('pointerup', handlePointerEnd)
+    document.addEventListener('pointercancel', handlePointerEnd)
+    window.addEventListener('blur', stopDrag)
+    cleanupStationDragRef.current = stopDrag
+  }
+
+  function moveStationWithKeyboard(event: KeyboardEvent<HTMLButtonElement>, stationId: string) {
+    if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
+
+    event.preventDefault()
+    const currentIndex = filteredStations.findIndex((station) => station.id === stationId)
+    const direction = event.key === 'ArrowDown' ? 1 : -1
+    const targetStation = filteredStations[currentIndex + direction]
+    if (!targetStation) return
+
+    moveStationToTarget(stationId, targetStation.id, direction === 1 ? 'after' : 'before')
+  }
+
+  function getStationDropTarget(clientY: number): { placement: 'before' | 'after'; stationId: string } | null {
+    const rows = [...(stationListRef.current?.querySelectorAll<HTMLElement>('[data-station-id]') ?? [])]
+    if (rows.length === 0) return null
+
+    for (const row of rows) {
+      const stationId = row.dataset.stationId
+      if (!stationId) continue
+
+      const box = row.getBoundingClientRect()
+      if (clientY < box.top + box.height / 2) return { placement: 'before', stationId }
+    }
+
+    const lastStationId = rows[rows.length - 1]?.dataset.stationId
+    return lastStationId ? { placement: 'after', stationId: lastStationId } : null
+  }
+
+  function moveStationToTarget(
+    draggedStationId: string,
+    targetStationId: string,
+    placement: 'before' | 'after',
+  ) {
+    setStations((current) => {
+      if (draggedStationId === targetStationId) return current
+
+      const draggedStation = current.find((station) => station.id === draggedStationId)
+      if (!draggedStation) return current
+
+      const withoutDragged = current.filter((station) => station.id !== draggedStationId)
+      const targetIndex = withoutDragged.findIndex((station) => station.id === targetStationId)
+      if (targetIndex === -1) return current
+
+      const insertIndex = placement === 'after' ? targetIndex + 1 : targetIndex
+      const next = [...withoutDragged]
+      next.splice(insertIndex, 0, draggedStation)
+
+      const orderChanged = next.some((station, index) => station.id !== current[index]?.id)
+      if (!orderChanged) return current
+
+      return next
+    })
+  }
+
   function importStations(mode: 'append' | 'replace') {
     const parsed = parseStationList(importText)
     if (parsed.stations.length === 0) {
@@ -304,6 +448,38 @@ function App() {
           </div>
         </div>
         <div className="topbar-actions">
+          <div className="theme-switch" aria-label="Color theme">
+            <button
+              className={themeMode === 'system' ? 'active' : ''}
+              type="button"
+              title="Follow system theme"
+              aria-label="Follow system theme"
+              aria-pressed={themeMode === 'system'}
+              onClick={() => setThemeMode('system')}
+            >
+              <Monitor size={15} />
+            </button>
+            <button
+              className={themeMode === 'light' ? 'active' : ''}
+              type="button"
+              title="Use light theme"
+              aria-label="Use light theme"
+              aria-pressed={themeMode === 'light'}
+              onClick={() => setThemeMode('light')}
+            >
+              <Sun size={15} />
+            </button>
+            <button
+              className={themeMode === 'dark' ? 'active' : ''}
+              type="button"
+              title="Use dark theme"
+              aria-label="Use dark theme"
+              aria-pressed={themeMode === 'dark'}
+              onClick={() => setThemeMode('dark')}
+            >
+              <Moon size={15} />
+            </button>
+          </div>
           <button className="icon-button" type="button" title="Import stations" onClick={() => setImportOpen(true)}>
             <Upload size={19} />
           </button>
@@ -447,15 +623,45 @@ function App() {
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search station or URL" />
           </label>
 
-          <div className="station-list" role="list">
-            {filteredStations.map((station, index) => {
+          <div className="station-list" ref={stationListRef} role="list">
+            {filteredStations.map((station) => {
               const isCurrent = station.id === currentStation?.id
               const isPlaying = isCurrent && status === 'playing'
+              const stationLogo = getStationLogo(station)
 
               return (
-                <article className={`station-row ${isCurrent ? 'selected' : ''}`} key={station.id} role="listitem">
+                <article
+                  className={`station-row ${isCurrent ? 'selected' : ''} ${
+                    draggingStationId === station.id ? 'dragging' : ''
+                  }`}
+                  data-station-id={station.id}
+                  key={station.id}
+                  role="listitem"
+                >
+                  <button
+                    className="drag-handle"
+                    type="button"
+                    title="Reorder station"
+                    aria-label={`Reorder ${station.name}`}
+                    onKeyDown={(event) => moveStationWithKeyboard(event, station.id)}
+                    onPointerDown={(event) => beginStationDrag(event, station.id)}
+                  >
+                    <GripVertical size={17} />
+                  </button>
                   <button className="station-main" type="button" onClick={() => playStation(station)}>
-                    <span className="station-index">{String(index + 1).padStart(2, '0')}</span>
+                    <span className="station-logo" aria-hidden="true" style={{ '--logo-accent': stationLogo.accent } as CSSProperties}>
+                      <span>{stationLogo.initials}</span>
+                      {stationLogo.url && (
+                        <img
+                          src={stationLogo.url}
+                          alt=""
+                          loading="lazy"
+                          onError={(event) => {
+                            event.currentTarget.remove()
+                          }}
+                        />
+                      )}
+                    </span>
                     <span>
                       <strong>{station.name}</strong>
                       <small>{station.url}</small>
@@ -592,6 +798,15 @@ function loadLastStationId(): string {
   return localStorage.getItem(LAST_STATION_STORAGE_KEY) ?? ''
 }
 
+function loadThemeMode(): ThemeMode {
+  try {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY)
+    return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system'
+  } catch {
+    return 'system'
+  }
+}
+
 function mergeStations(current: Station[], incoming: Station[]): Station[] {
   const seen = new Set(current.map((station) => station.url.toLowerCase()))
   const additions = incoming.filter((station) => {
@@ -702,6 +917,66 @@ function getMediaFacts(metadata: MediaInfo | null): Array<{ detail?: string; lab
   }
 
   return facts
+}
+
+function getStationLogo(station: Station): { accent: string; initials: string; url: string } {
+  const domain = getStationLogoDomain(station)
+
+  return {
+    accent: getStationAccent(station),
+    initials: getStationInitials(station.name),
+    url: domain ? `https://www.google.com/s2/favicons?domain_url=${encodeURIComponent(`https://${domain}`)}&sz=128` : '',
+  }
+}
+
+function getStationLogoDomain(station: Station): string {
+  const searchable = `${station.name} ${station.url}`.toLowerCase()
+  const knownDomains = [
+    { domain: 'somafm.com', pattern: /\b(somafm|soma fm|groove salad)\b/ },
+    { domain: 'kexp.org', pattern: /\bkexp\b/ },
+    { domain: 'radioparadise.com', pattern: /\b(radio paradise|radioparadise)\b/ },
+    { domain: 'wfmu.org', pattern: /\bwfmu\b/ },
+    { domain: 'radiofrance.fr', pattern: /\b(fip|radiofrance|radio france)\b/ },
+  ]
+
+  const known = knownDomains.find(({ pattern }) => pattern.test(searchable))
+  if (known) return known.domain
+
+  try {
+    return new URL(station.url).hostname.replace(/^www\./, '')
+  } catch {
+    return ''
+  }
+}
+
+function getStationInitials(name: string): string {
+  const words = name
+    .replace(/[^a-z0-9 ]/gi, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+
+  if (words.length === 0) return 'R'
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
+
+  return words
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase()
+}
+
+function getStationAccent(station: Station): string {
+  const source = station.id || station.name
+  let hash = 0
+
+  for (let index = 0; index < source.length; index += 1) {
+    hash = (hash << 5) - hash + source.charCodeAt(index)
+    hash |= 0
+  }
+
+  const colors = ['#ffbf47', '#33d6a6', '#ff7a45', '#8fb8ff', '#f2d27a', '#c69cff']
+  return colors[Math.abs(hash) % colors.length]
 }
 
 function formatMetadataNote(metadata: MediaInfo | null): string {

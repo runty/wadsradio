@@ -8,6 +8,26 @@
       name="description"
       content="A fast responsive internet radio player with YoRadio playlist import and export."
     />
+    <script>
+      ;(() => {
+        try {
+          const stored = localStorage.getItem('wadsradio.theme.v1')
+          const mode = stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system'
+          const theme =
+            mode === 'system'
+              ? window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+              : mode
+
+          document.documentElement.dataset.theme = theme
+        } catch {
+          document.documentElement.dataset.theme = window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light'
+        }
+      })()
+    </script>
     <title>WadsRadio</title>
   </head>
   <body>
