@@ -7,6 +7,7 @@ A fast, responsive internet radio web app with first-class YoRadio station list 
 - Touch-friendly player for desktop and mobile browsers
 - Local station library with search, favorites, add, remove, and volume persistence
 - HLS playback for `.m3u8` / `playlist.m3u8` station URLs, including Chrome support through `hls.js`
+- Mobile lock-screen and notification controls through the Media Session API
 - Rich now-playing panel with stream title, artist, station name, genre, bitrate, and audio format when the stream publishes ICY/Shoutcast metadata
 - Import from YoRadio `playlist.csv`, YoRadio/KaRadio JSON-line station lists, M3U/M3U8 station lists, PLS, and simple CSV/text rows
 - Export back to YoRadio-compatible `playlist.csv`

@@ -80,6 +80,7 @@ function App() {
   const hlsRef = useRef<Hls | null>(null)
   const importFileRef = useRef<HTMLInputElement | null>(null)
   const stationListRef = useRef<HTMLDivElement | null>(null)
+  const audioStationIdRef = useRef<string | null>(null)
   const draggingStationIdRef = useRef<string | null>(null)
   const playbackRequestIdRef = useRef(0)
   const cleanupStationDragRef = useRef<(() => void) | null>(null)
@@ -150,6 +151,25 @@ function App() {
   }, [volume])
 
   useEffect(() => {
+    updateMediaSessionMetadata(mediaInfo, currentStation, mediaDisplay, stationDisplayName, stationSubheading, status)
+  }, [currentStation, mediaDisplay, mediaInfo, stationDisplayName, stationSubheading, status])
+
+  useEffect(() => {
+    setMediaSessionAction('play', () => resumeCurrentStation())
+    setMediaSessionAction('pause', () => pausePlayback())
+    setMediaSessionAction('previoustrack', () => moveStation(-1))
+    setMediaSessionAction('nexttrack', () => moveStation(1))
+    setMediaSessionAction('stop', () => pausePlayback())
+  })
+
+  useEffect(() => {
+    return () => {
+      clearMediaSessionActions()
+      clearMediaSessionMetadata()
+    }
+  }, [])
+
+  useEffect(() => {
     if (currentStation?.id) {
       localStorage.setItem(LAST_STATION_STORAGE_KEY, currentStation.id)
     }
@@ -205,6 +225,7 @@ function App() {
 
     const playbackRequestId = playbackRequestIdRef.current + 1
     playbackRequestIdRef.current = playbackRequestId
+    audioStationIdRef.current = station.id
 
     setCurrentStationId(station.id)
     setStatus('loading')
@@ -292,12 +313,29 @@ function App() {
   }
 
   function togglePlayback() {
+    if (status === 'playing' || status === 'loading') {
+      pausePlayback()
+      return
+    }
+
+    resumeCurrentStation()
+  }
+
+  function pausePlayback() {
+    const audio = audioRef.current
+    if (!audio) return
+
+    audio.pause()
+    setStatus('paused')
+  }
+
+  function resumeCurrentStation() {
     const audio = audioRef.current
     if (!audio || !currentStation) return
 
-    if (status === 'playing' || status === 'loading') {
-      audio.pause()
-      setStatus('paused')
+    if (audio.currentSrc && status === 'paused' && audioStationIdRef.current === currentStation.id) {
+      setStatus('loading')
+      audio.play().catch(() => setStatus('error'))
       return
     }
 
@@ -859,6 +897,92 @@ function canPlayHlsNatively(audio: HTMLAudioElement): boolean {
 
 function toHlsProxyUrl(url: string): string {
   return `/api/hls?url=${encodeURIComponent(url)}`
+}
+
+function updateMediaSessionMetadata(
+  metadata: MediaInfo | null,
+  station: Station,
+  mediaDisplay: ReturnType<typeof getMediaDisplay>,
+  stationDisplayName: string,
+  stationSubheading: string,
+  status: PlaybackStatus,
+) {
+  if (!supportsMediaSession()) return
+
+  const artist = metadata?.artist || stationDisplayName || station.name
+  const album = metadata?.album || stationSubheading || station.name
+
+  setMediaSessionPlaybackState(status)
+
+  if (typeof window.MediaMetadata !== 'function') return
+
+  try {
+    navigator.mediaSession.metadata = new window.MediaMetadata({
+      title: mediaDisplay.title || station.name,
+      artist,
+      album,
+      artwork: getMediaSessionArtwork(mediaDisplay.artwork),
+    })
+  } catch {
+    navigator.mediaSession.metadata = new window.MediaMetadata({
+      title: mediaDisplay.title || station.name,
+      artist,
+      album,
+    })
+  }
+}
+
+function setMediaSessionPlaybackState(status: PlaybackStatus) {
+  if (!supportsMediaSession()) return
+
+  if (status === 'playing' || status === 'loading') {
+    navigator.mediaSession.playbackState = 'playing'
+    return
+  }
+
+  navigator.mediaSession.playbackState = status === 'paused' ? 'paused' : 'none'
+}
+
+function getMediaSessionArtwork(artwork: string): MediaImage[] {
+  if (artwork) return [{ src: artwork }]
+
+  return [
+    { src: '/favicon-48x48.png', sizes: '48x48', type: 'image/png' },
+    { src: '/favicon.png', sizes: '512x512', type: 'image/png' },
+  ]
+}
+
+function setMediaSessionAction(action: MediaSessionAction, handler: MediaSessionActionHandler) {
+  if (!supportsMediaSession()) return
+
+  try {
+    navigator.mediaSession.setActionHandler(action, handler)
+  } catch {
+    // Some browsers expose Media Session but reject individual actions.
+  }
+}
+
+function clearMediaSessionActions() {
+  if (!supportsMediaSession()) return
+
+  for (const action of ['play', 'pause', 'previoustrack', 'nexttrack', 'stop'] as const) {
+    try {
+      navigator.mediaSession.setActionHandler(action, null)
+    } catch {
+      // Ignore unsupported actions during teardown.
+    }
+  }
+}
+
+function clearMediaSessionMetadata() {
+  if (!supportsMediaSession()) return
+
+  navigator.mediaSession.metadata = null
+  navigator.mediaSession.playbackState = 'none'
+}
+
+function supportsMediaSession(): boolean {
+  return typeof navigator !== 'undefined' && 'mediaSession' in navigator
 }
 
 function mergeStations(current: Station[], incoming: Station[]): Station[] {
