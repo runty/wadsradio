@@ -6,8 +6,9 @@ A fast, responsive internet radio web app with first-class YoRadio station list 
 
 - Touch-friendly player for desktop and mobile browsers
 - Local station library with search, favorites, add, remove, and volume persistence
+- HLS playback for `.m3u8` / `playlist.m3u8` station URLs, including Chrome support through `hls.js`
 - Rich now-playing panel with stream title, artist, station name, genre, bitrate, and audio format when the stream publishes ICY/Shoutcast metadata
-- Import from YoRadio `playlist.csv`, YoRadio/KaRadio JSON-line station lists, M3U, PLS, and simple CSV/text rows
+- Import from YoRadio `playlist.csv`, YoRadio/KaRadio JSON-line station lists, M3U/M3U8 station lists, PLS, and simple CSV/text rows
 - Export back to YoRadio-compatible `playlist.csv`
 - Static build served by a small Node server for simple Linux Docker deployment
 
@@ -20,6 +21,18 @@ Station name	https://stream.example/radio	0
 ```
 
 The third column is YoRadio's per-station output volume offset. WadsRadio preserves it on import/export even though browser playback uses the main volume slider.
+
+## HLS and playlist.m3u8 streams
+
+Add an HLS stream the same way as any other station:
+
+```text
+Station name	https://stream.example/live/playlist.m3u8	0
+```
+
+HLS station playback goes through WadsRadio's `/api/hls` proxy, which rewrites playlists and segment URLs to avoid common cross-origin failures. Safari can usually play the proxied playlist natively; other browsers use `hls.js`.
+
+Station-list `.m3u8` files are supported for import. HLS media playlists with `#EXT-X-*` segment directives are playback sources, not station lists, so add the playlist URL as a station instead of importing the file contents.
 
 ## Local development
 

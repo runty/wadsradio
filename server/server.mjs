@@ -3,6 +3,7 @@ import { stat } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { extname, join, normalize } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { handleHlsProxyRequest } from './hls.mjs'
 import { readStreamMetadata } from './metadata.mjs'
 
 const PORT = Number.parseInt(process.env.PORT ?? '8080', 10)
@@ -32,6 +33,11 @@ createServer(async (request, response) => {
 
   if (requestUrl.pathname === '/api/metadata') {
     await handleMetadataRequest(requestUrl, response)
+    return
+  }
+
+  if (requestUrl.pathname === '/api/hls') {
+    await handleHlsProxyRequest(requestUrl, response, request)
     return
   }
 

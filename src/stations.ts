@@ -45,7 +45,8 @@ export function parseStationList(input: string): ParsedStations {
   const lines = normalized.split('\n')
   const drafts: StationDraft[] = []
   let rejectedLines = 0
-  let format = 'Text'
+  const isHlsMediaPlaylist = /^#EXT-X-/im.test(normalized)
+  let format = isHlsMediaPlaylist ? 'HLS media playlist' : 'Text'
 
   const plsStations = parsePls(normalized)
   if (plsStations.length > 0) {
@@ -62,7 +63,7 @@ export function parseStationList(input: string): ParsedStations {
     const line = rawLine.trim()
     if (!line) continue
 
-    if (/^#EXTINF/i.test(line)) {
+    if (!isHlsMediaPlaylist && /^#EXTINF/i.test(line)) {
       pendingM3uTitle = cleanField(line.replace(/^#EXTINF:[^,]*,?/i, ''))
       format = 'M3U'
       continue
@@ -70,7 +71,7 @@ export function parseStationList(input: string): ParsedStations {
 
     if (line.startsWith('#')) continue
 
-    if (pendingM3uTitle && looksLikeStreamUrl(line)) {
+    if (!isHlsMediaPlaylist && pendingM3uTitle && looksLikeStreamUrl(line)) {
       drafts.push({ name: pendingM3uTitle, url: normalizeStreamUrl(line), volumeOffset: 0 })
       pendingM3uTitle = ''
       format = 'M3U'
@@ -113,6 +114,11 @@ export function parseStationList(input: string): ParsedStations {
     }
 
     if (looksLikeStreamUrl(line)) {
+      if (isHlsMediaPlaylist) {
+        rejectedLines += 1
+        continue
+      }
+
       drafts.push({ name: stationNameFromUrl(line), url: normalizeStreamUrl(line), volumeOffset: 0 })
       continue
     }

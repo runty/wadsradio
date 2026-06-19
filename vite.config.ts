@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { handleHlsProxyRequest } from './server/hls.mjs'
 import { readStreamMetadata } from './server/metadata.mjs'
 
 // https://vite.dev/config/
@@ -25,6 +26,11 @@ export default defineConfig({
           const metadata = await readStreamMetadata(streamUrl)
           response.statusCode = metadata.ok ? 200 : 502
           response.end(JSON.stringify(metadata))
+        })
+
+        server.middlewares.use('/api/hls', async (request, response) => {
+          const requestUrl = new URL(request.url ?? '', 'http://localhost/api/hls')
+          await handleHlsProxyRequest(requestUrl, response, request)
         })
       },
     },

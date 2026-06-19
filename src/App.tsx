@@ -27,6 +27,7 @@ import type {
   KeyboardEvent,
   PointerEvent as ReactPointerEvent,
 } from 'react'
+import type Hls from 'hls.js'
 import './App.css'
 import {
   DEFAULT_STATIONS,
@@ -76,9 +77,11 @@ type MediaInfo = {
 
 function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const hlsRef = useRef<Hls | null>(null)
   const importFileRef = useRef<HTMLInputElement | null>(null)
   const stationListRef = useRef<HTMLDivElement | null>(null)
   const draggingStationIdRef = useRef<string | null>(null)
+  const playbackRequestIdRef = useRef(0)
   const cleanupStationDragRef = useRef<(() => void) | null>(null)
   const [stations, setStations] = useState<Station[]>(() => loadStations())
   const [currentStationId, setCurrentStationId] = useState(() => loadLastStationId())
@@ -131,6 +134,14 @@ function App() {
 
   useEffect(() => {
     return () => cleanupStationDragRef.current?.()
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (!hlsRef.current) return
+      hlsRef.current.destroy()
+      hlsRef.current = null
+    }
   }, [])
 
   useEffect(() => {
@@ -188,20 +199,96 @@ function App() {
     }
   }, [currentStation?.url, metadataRefreshToken, status])
 
-  function playStation(station: Station) {
+  async function playStation(station: Station) {
     const audio = audioRef.current
     if (!audio) return
 
+    const playbackRequestId = playbackRequestIdRef.current + 1
+    playbackRequestIdRef.current = playbackRequestId
+
     setCurrentStationId(station.id)
     setStatus('loading')
+    audio.volume = volume
 
-    if (audio.src !== station.url) {
-      audio.src = station.url
+    destroyHlsPlayer()
+
+    const isHlsStation = isHlsStreamUrl(station.url)
+    const playbackUrl = isHlsStation ? toHlsProxyUrl(station.url) : station.url
+
+    if (isHlsStation && !canPlayHlsNatively(audio)) {
+      audio.removeAttribute('src')
+      audio.load()
+
+      try {
+        const { default: Hls } = await import('hls.js')
+        if (playbackRequestId !== playbackRequestIdRef.current) return
+
+        if (!Hls.isSupported()) {
+          setStatus('error')
+          return
+        }
+
+        const hls = new Hls({
+          backBufferLength: 90,
+          enableWorker: true,
+          lowLatencyMode: true,
+        })
+
+        hlsRef.current = hls
+
+        hls.on(Hls.Events.ERROR, (_event, data) => {
+          if (hlsRef.current !== hls) return
+          if (!data.fatal) return
+
+          if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+            hls.startLoad()
+            return
+          }
+
+          if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+            hls.recoverMediaError()
+            return
+          }
+
+          if (hlsRef.current === hls) hlsRef.current = null
+          hls.destroy()
+          setStatus('error')
+        })
+
+        hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+          if (playbackRequestId !== playbackRequestIdRef.current || hlsRef.current !== hls) return
+          hls.loadSource(playbackUrl)
+        })
+
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (playbackRequestId !== playbackRequestIdRef.current) return
+          audio.play().catch(() => {
+            if (playbackRequestId === playbackRequestIdRef.current) setStatus('error')
+          })
+        })
+
+        hls.attachMedia(audio)
+      } catch {
+        if (playbackRequestId === playbackRequestIdRef.current) setStatus('error')
+      }
+
+      return
+    }
+
+    if (audio.getAttribute('src') !== playbackUrl) {
+      audio.src = playbackUrl
       audio.load()
     }
 
-    audio.volume = volume
-    audio.play().catch(() => setStatus('error'))
+    audio.play().catch(() => {
+      if (playbackRequestId === playbackRequestIdRef.current) setStatus('error')
+    })
+  }
+
+  function destroyHlsPlayer() {
+    if (!hlsRef.current) return
+    hlsRef.current.destroy()
+    hlsRef.current = null
   }
 
   function togglePlayback() {
@@ -353,7 +440,11 @@ function App() {
   function importStations(mode: 'append' | 'replace') {
     const parsed = parseStationList(importText)
     if (parsed.stations.length === 0) {
-      setImportSummary('No playable stations found.')
+      setImportSummary(
+        parsed.format === 'HLS media playlist'
+          ? 'This looks like an HLS media playlist. Add its playlist.m3u8 URL as a station instead of importing the playlist file contents.'
+          : 'No playable stations found.',
+      )
       return
     }
 
@@ -547,7 +638,9 @@ function App() {
             preload="none"
             onCanPlay={() => setStatus('playing')}
             onEnded={() => moveStation(1)}
-            onError={() => setStatus('error')}
+            onError={() => {
+              if (!hlsRef.current) setStatus('error')
+            }}
             onPause={() => setStatus((current) => (current === 'error' ? current : 'paused'))}
             onPlaying={() => setStatus('playing')}
             onWaiting={() => setStatus('loading')}
@@ -677,7 +770,7 @@ function App() {
               onClick={() => importFileRef.current?.click()}
             >
               <FileUp size={24} />
-              <span>Drop a YoRadio playlist.csv, WebStations.txt, M3U, or PLS file here.</span>
+              <span>Drop a YoRadio playlist.csv, WebStations.txt, station M3U/M3U8, or PLS file here.</span>
               <input
                 ref={importFileRef}
                 accept=".csv,.txt,.m3u,.m3u8,.pls,.json"
@@ -690,7 +783,7 @@ function App() {
             <textarea
               value={importText}
               onChange={(event) => setImportText(event.target.value)}
-              placeholder={'Paste rows like:\nStation name\\thttps://stream.example/radio\\t0'}
+              placeholder={'Paste rows like:\nStation name\\thttps://stream.example/radio\\t0\nHLS Station\\thttps://stream.example/playlist.m3u8\\t0'}
             />
 
             <div className="dialog-actions">
@@ -748,6 +841,24 @@ function loadVolume(): number {
 
 function loadLastStationId(): string {
   return localStorage.getItem(LAST_STATION_STORAGE_KEY) ?? ''
+}
+
+function isHlsStreamUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    const combined = `${parsed.pathname}${parsed.search}`.toLowerCase()
+    return /\.m3u8(?:[?#]|$)/i.test(combined) || combined.includes('m3u8')
+  } catch {
+    return /\.m3u8(?:[?#]|$)/i.test(url)
+  }
+}
+
+function canPlayHlsNatively(audio: HTMLAudioElement): boolean {
+  return Boolean(audio.canPlayType('application/vnd.apple.mpegurl') || audio.canPlayType('application/x-mpegURL'))
+}
+
+function toHlsProxyUrl(url: string): string {
+  return `/api/hls?url=${encodeURIComponent(url)}`
 }
 
 function mergeStations(current: Station[], incoming: Station[]): Station[] {
