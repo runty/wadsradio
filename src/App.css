@@ -60,6 +60,7 @@
 
 .brand h1 {
   color: var(--heading);
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
   font-size: 1.22rem;
   line-height: 1.1;
 }
