@@ -27,7 +27,7 @@ import type {
   KeyboardEvent,
   PointerEvent as ReactPointerEvent,
 } from 'react'
-import type Hls from 'hls.js'
+import Hls from 'hls.js'
 import './App.css'
 import {
   DEFAULT_STATIONS,
@@ -236,63 +236,69 @@ function App() {
     const isHlsStation = isHlsStreamUrl(station.url)
     const playbackUrl = isHlsStation ? toHlsProxyUrl(station.url) : station.url
 
-    if (isHlsStation && !canPlayHlsNatively(audio)) {
+    if (isHlsStation) {
       audio.removeAttribute('src')
       audio.load()
 
       try {
-        const { default: Hls } = await import('hls.js')
         if (playbackRequestId !== playbackRequestIdRef.current) return
 
-        if (!Hls.isSupported()) {
-          setStatus('error')
+        if (Hls.isSupported()) {
+          const hls = new Hls({
+            backBufferLength: 90,
+            enableWorker: true,
+            lowLatencyMode: true,
+          })
+
+          hlsRef.current = hls
+
+          hls.on(Hls.Events.ERROR, (_event, data) => {
+            if (hlsRef.current !== hls) return
+            if (!data.fatal) return
+
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+              hls.startLoad()
+              return
+            }
+
+            if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+              hls.recoverMediaError()
+              return
+            }
+
+            if (hlsRef.current === hls) hlsRef.current = null
+            hls.destroy()
+            setStatus('error')
+          })
+
+          hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+            if (playbackRequestId !== playbackRequestIdRef.current || hlsRef.current !== hls) return
+            hls.loadSource(playbackUrl)
+          })
+
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            if (playbackRequestId !== playbackRequestIdRef.current) return
+            requestAudioPlayback(audio, playbackRequestId)
+          })
+
+          hls.attachMedia(audio)
+          requestAudioPlayback(audio, playbackRequestId)
           return
         }
-
-        const hls = new Hls({
-          backBufferLength: 90,
-          enableWorker: true,
-          lowLatencyMode: true,
-        })
-
-        hlsRef.current = hls
-
-        hls.on(Hls.Events.ERROR, (_event, data) => {
-          if (hlsRef.current !== hls) return
-          if (!data.fatal) return
-
-          if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-            hls.startLoad()
-            return
-          }
-
-          if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-            hls.recoverMediaError()
-            return
-          }
-
-          if (hlsRef.current === hls) hlsRef.current = null
-          hls.destroy()
-          setStatus('error')
-        })
-
-        hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-          if (playbackRequestId !== playbackRequestIdRef.current || hlsRef.current !== hls) return
-          hls.loadSource(playbackUrl)
-        })
-
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          if (playbackRequestId !== playbackRequestIdRef.current) return
-          audio.play().catch(() => {
-            if (playbackRequestId === playbackRequestIdRef.current) setStatus('error')
-          })
-        })
-
-        hls.attachMedia(audio)
       } catch {
-        if (playbackRequestId === playbackRequestIdRef.current) setStatus('error')
+        // Fall back to native HLS below when hls.js cannot load.
       }
 
+      if (playbackRequestId !== playbackRequestIdRef.current) return
+
+      if (!canPlayHlsNatively(audio)) {
+        setStatus('error')
+        return
+      }
+
+      audio.src = playbackUrl
+      audio.load()
+      requestAudioPlayback(audio, playbackRequestId)
       return
     }
 
@@ -301,15 +307,24 @@ function App() {
       audio.load()
     }
 
-    audio.play().catch(() => {
-      if (playbackRequestId === playbackRequestIdRef.current) setStatus('error')
-    })
+    requestAudioPlayback(audio, playbackRequestId)
   }
 
   function destroyHlsPlayer() {
     if (!hlsRef.current) return
     hlsRef.current.destroy()
     hlsRef.current = null
+  }
+
+  function requestAudioPlayback(audio: HTMLAudioElement, playbackRequestId: number) {
+    audio.play().catch((error) => {
+      if (playbackRequestId !== playbackRequestIdRef.current) return
+      if (isUserActivationPlaybackError(error)) {
+        setStatus('paused')
+        return
+      }
+      setStatus('error')
+    })
   }
 
   function togglePlayback() {
@@ -333,9 +348,13 @@ function App() {
     const audio = audioRef.current
     if (!audio || !currentStation) return
 
-    if (audio.currentSrc && status === 'paused' && audioStationIdRef.current === currentStation.id) {
+    if (
+      audio.currentSrc &&
+      (status === 'paused' || status === 'error') &&
+      audioStationIdRef.current === currentStation.id
+    ) {
       setStatus('loading')
-      audio.play().catch(() => setStatus('error'))
+      requestAudioPlayback(audio, playbackRequestIdRef.current)
       return
     }
 
@@ -674,7 +693,6 @@ function App() {
           <audio
             ref={audioRef}
             preload="none"
-            onCanPlay={() => setStatus('playing')}
             onEnded={() => moveStation(1)}
             onError={() => {
               if (!hlsRef.current) setStatus('error')
@@ -897,6 +915,10 @@ function canPlayHlsNatively(audio: HTMLAudioElement): boolean {
 
 function toHlsProxyUrl(url: string): string {
   return `/api/hls?url=${encodeURIComponent(url)}`
+}
+
+function isUserActivationPlaybackError(error: unknown): boolean {
+  return error instanceof DOMException && error.name === 'NotAllowedError'
 }
 
 function updateMediaSessionMetadata(
