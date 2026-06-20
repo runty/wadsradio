@@ -39,13 +39,37 @@ import type { Station } from './stations'
 import { WadsThemeSwitch } from './WadsThemeSwitch'
 import { loadWadsThemeMode, syncWadsTheme, type WadsThemeMode } from './wads-theme'
 
-const STATIONS_STORAGE_KEY = 'wadsradio.stations.v1'
+const LEGACY_STATIONS_STORAGE_KEY = 'wadsradio.stations.v1'
+const FAVORITE_STATIONS_STORAGE_KEY = 'wadsradio.favoriteStations.v1'
+const SELECTED_PLAYLIST_STORAGE_KEY = 'wadsradio.selectedPlaylist.v1'
 const VOLUME_STORAGE_KEY = 'wadsradio.volume.v1'
 const LAST_STATION_STORAGE_KEY = 'wadsradio.lastStation.v1'
 const THEME_STORAGE_KEY = 'wadsradio.theme.v1'
+const FAVORITES_PLAYLIST_ID = '__favorites__'
 
 type PlaybackStatus = 'idle' | 'loading' | 'playing' | 'paused' | 'error'
 type MetadataStatus = 'idle' | 'loading' | 'ready' | 'unavailable'
+type PlaylistStatus = 'idle' | 'loading' | 'ready' | 'error'
+
+type StationListSummary = {
+  filename: string
+  id: string
+  stationCount: number
+  title: string
+}
+
+type StationListsResponse = {
+  ok: boolean
+  lists?: StationListSummary[]
+  error?: string
+}
+
+type StationListResponse = {
+  ok: boolean
+  list?: StationListSummary
+  content?: string
+  error?: string
+}
 
 type MediaInfo = {
   ok: boolean
@@ -84,10 +108,14 @@ function App() {
   const draggingStationIdRef = useRef<string | null>(null)
   const playbackRequestIdRef = useRef(0)
   const cleanupStationDragRef = useRef<(() => void) | null>(null)
-  const [stations, setStations] = useState<Station[]>(() => loadStations())
+  const [stationLists, setStationLists] = useState<StationListSummary[]>([])
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState(() => loadSelectedPlaylistId())
+  const [playlistStations, setPlaylistStations] = useState<Station[]>(DEFAULT_STATIONS)
+  const [playlistStatus, setPlaylistStatus] = useState<PlaylistStatus>('idle')
+  const [playlistError, setPlaylistError] = useState('')
+  const [favoriteStations, setFavoriteStations] = useState<Station[]>(() => loadFavoriteStations())
   const [currentStationId, setCurrentStationId] = useState(() => loadLastStationId())
   const [query, setQuery] = useState('')
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
   const [status, setStatus] = useState<PlaybackStatus>('idle')
   const [volume, setVolume] = useState(() => loadVolume())
   const [importOpen, setImportOpen] = useState(false)
@@ -101,6 +129,24 @@ function App() {
   const [draggingStationId, setDraggingStationId] = useState<string | null>(null)
   const [themeMode, setThemeMode] = useState<WadsThemeMode>(() => loadWadsThemeMode(THEME_STORAGE_KEY))
 
+  const activePlaylistIsFavorites = selectedPlaylistId === FAVORITES_PLAYLIST_ID
+  const selectedStationList = stationLists.find((list) => list.id === selectedPlaylistId) ?? null
+  const selectedPlaylistTitle = activePlaylistIsFavorites ? 'Favorites' : selectedStationList?.title || 'Station list'
+  const canEditActivePlaylist = activePlaylistIsFavorites
+  const effectivePlaylistStatus = activePlaylistIsFavorites ? 'ready' : playlistStatus
+  const effectivePlaylistError = activePlaylistIsFavorites ? '' : playlistError
+  const favoriteUrls = useMemo(
+    () => new Set(favoriteStations.map((station) => station.url.toLowerCase())),
+    [favoriteStations],
+  )
+  const stations = useMemo(
+    () =>
+      activePlaylistIsFavorites
+        ? favoriteStations.map((station) => ({ ...station, favorite: true }))
+        : playlistStations.map((station) => ({ ...station, favorite: favoriteUrls.has(station.url.toLowerCase()) })),
+    [activePlaylistIsFavorites, favoriteStations, favoriteUrls, playlistStations],
+  )
+
   const currentStation =
     stations.find((station) => station.id === currentStationId) ?? stations[0] ?? DEFAULT_STATIONS[0]
 
@@ -108,17 +154,16 @@ function App() {
     const cleanQuery = query.trim().toLowerCase()
 
     return stations.filter((station) => {
-      const matchesFavorite = !showFavoritesOnly || station.favorite
       const matchesQuery =
         !cleanQuery ||
         station.name.toLowerCase().includes(cleanQuery) ||
         station.url.toLowerCase().includes(cleanQuery)
 
-      return matchesFavorite && matchesQuery
+      return matchesQuery
     })
-  }, [query, showFavoritesOnly, stations])
+  }, [query, stations])
 
-  const favoritesCount = stations.filter((station) => station.favorite).length
+  const favoritesCount = favoriteStations.length
   const statusLabel = status === 'loading' ? 'Tuning' : status === 'error' ? 'Could not play' : status
   const mediaDisplay = getMediaDisplay(mediaInfo, currentStation, metadataStatus)
   const mediaFacts = getMediaFacts(mediaInfo)
@@ -126,8 +171,85 @@ function App() {
   const stationSubheading = getStationSubheading(mediaInfo, currentStation)
 
   useEffect(() => {
-    localStorage.setItem(STATIONS_STORAGE_KEY, JSON.stringify(stations))
-  }, [stations])
+    localStorage.setItem(FAVORITE_STATIONS_STORAGE_KEY, JSON.stringify(favoriteStations))
+  }, [favoriteStations])
+
+  useEffect(() => {
+    if (selectedPlaylistId) {
+      localStorage.setItem(SELECTED_PLAYLIST_STORAGE_KEY, selectedPlaylistId)
+    }
+  }, [selectedPlaylistId])
+
+  useEffect(() => {
+    let ignore = false
+
+    async function loadStationLists() {
+      try {
+        const response = await fetch('/api/station-lists')
+        const result = (await response.json()) as StationListsResponse
+        if (ignore) return
+
+        const lists = result.ok && Array.isArray(result.lists) ? result.lists : []
+        setStationLists(lists)
+        setSelectedPlaylistId((current) => {
+          if (current === FAVORITES_PLAYLIST_ID || lists.some((list) => list.id === current)) return current
+          return lists[0]?.id ?? FAVORITES_PLAYLIST_ID
+        })
+      } catch {
+        if (ignore) return
+        setStationLists([])
+        setSelectedPlaylistId((current) => current || FAVORITES_PLAYLIST_ID)
+      }
+    }
+
+    void loadStationLists()
+
+    return () => {
+      ignore = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!selectedPlaylistId || activePlaylistIsFavorites) return
+
+    let ignore = false
+    const controller = new AbortController()
+
+    async function loadSelectedStationList() {
+      setPlaylistStatus('loading')
+      setPlaylistError('')
+      setPlaylistStations([])
+
+      try {
+        const response = await fetch(`/api/station-list?id=${encodeURIComponent(selectedPlaylistId)}`, {
+          signal: controller.signal,
+        })
+        const result = (await response.json()) as StationListResponse
+        if (ignore) return
+
+        if (!response.ok || !result.ok || !result.content) {
+          throw new Error(result.error || 'Station list unavailable.')
+        }
+
+        const parsed = parseStationList(result.content)
+        setPlaylistStations(parsed.stations)
+        setPlaylistStatus('ready')
+      } catch (error) {
+        if (ignore || error instanceof DOMException) return
+
+        setPlaylistStations([])
+        setPlaylistStatus('error')
+        setPlaylistError(error instanceof Error ? error.message : 'Station list unavailable.')
+      }
+    }
+
+    void loadSelectedStationList()
+
+    return () => {
+      ignore = true
+      controller.abort()
+    }
+  }, [activePlaylistIsFavorites, selectedPlaylistId])
 
   useEffect(() => {
     return syncWadsTheme(THEME_STORAGE_KEY, themeMode)
@@ -372,26 +494,38 @@ function App() {
     playStation(stations[nextIndex])
   }
 
-  function toggleFavorite(stationId: string) {
-    setStations((current) =>
-      current.map((station) =>
-        station.id === stationId ? { ...station, favorite: !station.favorite } : station,
-      ),
-    )
+  function choosePlaylist(event: ChangeEvent<HTMLSelectElement>) {
+    setSelectedPlaylistId(event.target.value)
+    setQuery('')
+  }
+
+  function toggleFavorite(station: Station) {
+    setFavoriteStations((current) => {
+      const key = station.url.toLowerCase()
+      if (current.some((favorite) => favorite.url.toLowerCase() === key)) {
+        return current.filter((favorite) => favorite.url.toLowerCase() !== key)
+      }
+
+      return mergeStations(current, [{ ...station, favorite: true }])
+    })
   }
 
   function removeStation(stationId: string) {
-    setStations((current) => {
+    if (!canEditActivePlaylist) return
+
+    setFavoriteStations((current) => {
       const nextStations = current.filter((station) => station.id !== stationId)
       if (stationId === currentStationId && nextStations.length > 0) {
         setCurrentStationId(nextStations[0].id)
       }
 
-      return nextStations.length > 0 ? nextStations : DEFAULT_STATIONS
+      return nextStations
     })
   }
 
   function beginStationDrag(event: ReactPointerEvent<HTMLButtonElement>, stationId: string) {
+    if (!canEditActivePlaylist) return
+
     event.preventDefault()
     event.stopPropagation()
     cleanupStationDragRef.current?.()
@@ -441,6 +575,7 @@ function App() {
   }
 
   function moveStationWithKeyboard(event: KeyboardEvent<HTMLButtonElement>, stationId: string) {
+    if (!canEditActivePlaylist) return
     if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
 
     event.preventDefault()
@@ -473,7 +608,9 @@ function App() {
     targetStationId: string,
     placement: 'before' | 'after',
   ) {
-    setStations((current) => {
+    if (!canEditActivePlaylist) return
+
+    setFavoriteStations((current) => {
       if (draggedStationId === targetStationId) return current
 
       const draggedStation = current.find((station) => station.id === draggedStationId)
@@ -505,8 +642,10 @@ function App() {
       return
     }
 
-    setStations((current) => {
-      const merged = mode === 'replace' ? parsed.stations : mergeStations(current, parsed.stations)
+    setSelectedPlaylistId(FAVORITES_PLAYLIST_ID)
+    setFavoriteStations((current) => {
+      const incoming = parsed.stations.map((station) => ({ ...station, favorite: true }))
+      const merged = mode === 'replace' ? incoming : mergeStations(current, incoming)
       if (!merged.some((station) => station.id === currentStationId)) {
         setCurrentStationId(merged[0]?.id ?? '')
       }
@@ -516,7 +655,7 @@ function App() {
     setImportSummary(
       `${mode === 'replace' ? 'Loaded' : 'Added'} ${parsed.stations.length} station${
         parsed.stations.length === 1 ? '' : 's'
-      } from ${parsed.format}${parsed.rejectedLines ? `; skipped ${parsed.rejectedLines} line(s)` : ''}.`,
+      } to favorites from ${parsed.format}${parsed.rejectedLines ? `; skipped ${parsed.rejectedLines} line(s)` : ''}.`,
     )
   }
 
@@ -548,7 +687,8 @@ function App() {
     if (!addName.trim() || !addUrl.trim()) return
 
     const station = createStation(addName, addUrl)
-    setStations((current) => mergeStations(current, [station]))
+    setSelectedPlaylistId(FAVORITES_PLAYLIST_ID)
+    setFavoriteStations((current) => mergeStations(current, [{ ...station, favorite: true }]))
     setCurrentStationId(station.id)
     setAddName('')
     setAddUrl('')
@@ -562,7 +702,7 @@ function App() {
     const anchor = document.createElement('a')
 
     anchor.href = href
-    anchor.download = 'playlist.csv'
+    anchor.download = `${downloadNameFromTitle(selectedPlaylistTitle)}.csv`
     anchor.click()
     URL.revokeObjectURL(href)
   }
@@ -705,23 +845,29 @@ function App() {
 
         <section className="library" aria-label="Station library">
           <div className="library-header">
-            <div>
+            <div className="playlist-heading">
               <div className="eyebrow">Library</div>
-              <h2>{stations.length} stations</h2>
+              <h2>{selectedPlaylistTitle}</h2>
+              <p>{stations.length} station{stations.length === 1 ? '' : 's'}</p>
             </div>
-            <div className="segmented" aria-label="Library filter">
-              <button type="button" className={!showFavoritesOnly ? 'active' : ''} onClick={() => setShowFavoritesOnly(false)}>
-                All
-              </button>
-              <button type="button" className={showFavoritesOnly ? 'active' : ''} onClick={() => setShowFavoritesOnly(true)}>
-                Favorites {favoritesCount}
-              </button>
-            </div>
+            <label className="playlist-picker">
+              <ListMusic size={18} aria-hidden="true" />
+              <span className="sr-only">Station list</span>
+              <select value={selectedPlaylistId} onChange={choosePlaylist}>
+                {!selectedPlaylistId && <option value="">Loading lists</option>}
+                <option value={FAVORITES_PLAYLIST_ID}>Favorites ({favoritesCount})</option>
+                {stationLists.map((list) => (
+                  <option key={list.id} value={list.id}>
+                    {list.title} ({list.stationCount})
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
 
           <label className="search-field">
             <Search size={18} aria-hidden="true" />
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search station or URL" />
+            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search current list" />
           </label>
 
           <div className="station-list" ref={stationListRef} role="list">
@@ -741,8 +887,9 @@ function App() {
                 >
                   <button
                     className="drag-handle"
+                    disabled={!canEditActivePlaylist}
                     type="button"
-                    title="Reorder station"
+                    title={canEditActivePlaylist ? 'Reorder station' : 'Playlist file controls this order'}
                     aria-label={`Reorder ${station.name}`}
                     onKeyDown={(event) => moveStationWithKeyboard(event, station.id)}
                     onPointerDown={(event) => beginStationDrag(event, station.id)}
@@ -772,17 +919,19 @@ function App() {
                     <button
                       className={`icon-button small ${station.favorite ? 'liked' : ''}`}
                       type="button"
-                      title={station.favorite ? 'Remove favorite' : 'Add favorite'}
-                      onClick={() => toggleFavorite(station.id)}
+                      title={station.favorite ? 'Remove from favorites' : 'Add to favorites'}
+                      onClick={() => toggleFavorite(station)}
                     >
                       <Heart size={17} fill={station.favorite ? 'currentColor' : 'none'} />
                     </button>
                     <button className="icon-button small" type="button" title={isPlaying ? 'Pause station' : 'Play station'} onClick={() => (isPlaying ? togglePlayback() : playStation(station))}>
                       {isPlaying ? <Pause size={17} /> : <Play size={17} />}
                     </button>
-                    <button className="icon-button small danger" type="button" title="Remove station" onClick={() => removeStation(station.id)}>
-                      <Trash2 size={17} />
-                    </button>
+                    {canEditActivePlaylist && (
+                      <button className="icon-button small danger" type="button" title="Remove station" onClick={() => removeStation(station.id)}>
+                        <Trash2 size={17} />
+                      </button>
+                    )}
                   </div>
                 </article>
               )
@@ -792,7 +941,7 @@ function App() {
           {filteredStations.length === 0 && (
             <div className="empty-state">
               <ListMusic size={28} />
-              <p>No stations match this view.</p>
+              <p>{effectivePlaylistStatus === 'loading' ? 'Loading station list.' : effectivePlaylistError || 'No stations match this view.'}</p>
             </div>
           )}
         </section>
@@ -844,15 +993,15 @@ function App() {
 
             <div className="dialog-actions">
               <button className="secondary-button" type="button" onClick={() => importStations('append')}>
-                Append
+                Append to favorites
               </button>
               <button className="primary-button" type="button" onClick={() => importStations('replace')}>
-                Replace library
+                Replace favorites
               </button>
             </div>
 
             <form className="add-station" onSubmit={addStation}>
-              <div className="eyebrow">Add one station</div>
+              <div className="eyebrow">Add one favorite</div>
               <label>
                 Name
                 <input value={addName} onChange={(event) => setAddName(event.target.value)} placeholder="Station name" />
@@ -875,18 +1024,39 @@ function App() {
   )
 }
 
-function loadStations(): Station[] {
+function loadSelectedPlaylistId(): string {
+  return localStorage.getItem(SELECTED_PLAYLIST_STORAGE_KEY) ?? ''
+}
+
+function loadFavoriteStations(): Station[] {
   try {
-    const saved = localStorage.getItem(STATIONS_STORAGE_KEY)
+    const saved = localStorage.getItem(FAVORITE_STATIONS_STORAGE_KEY)
     const parsed = saved ? (JSON.parse(saved) as Station[]) : null
     if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed.filter((station) => station.name && station.url)
+      return sanitizeFavoriteStations(parsed)
     }
   } catch {
-    // Ignore malformed local storage and fall back to the starter library.
+    // Ignore malformed local storage and try the legacy station library.
   }
 
-  return DEFAULT_STATIONS
+  try {
+    const saved = localStorage.getItem(LEGACY_STATIONS_STORAGE_KEY)
+    const parsed = saved ? (JSON.parse(saved) as Station[]) : null
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      const favorites = parsed.filter((station) => station.favorite)
+      if (favorites.length > 0) return sanitizeFavoriteStations(favorites)
+    }
+  } catch {
+    // Ignore malformed legacy local storage and fall back to starter favorites.
+  }
+
+  return sanitizeFavoriteStations(DEFAULT_STATIONS.filter((station) => station.favorite))
+}
+
+function sanitizeFavoriteStations(stations: Station[]): Station[] {
+  return stations
+    .filter((station) => station.name && station.url)
+    .map((station) => ({ ...station, favorite: true }))
 }
 
 function loadVolume(): number {
@@ -1021,6 +1191,16 @@ function mergeStations(current: Station[], incoming: Station[]): Station[] {
 
 function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1)
+}
+
+function downloadNameFromTitle(title: string): string {
+  return (
+    title
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'wadsradio-playlist'
+  )
 }
 
 function hasUsefulMetadata(metadata: MediaInfo | null): boolean {

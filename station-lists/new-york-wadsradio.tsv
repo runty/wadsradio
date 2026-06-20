@@ -1,0 +1,28 @@
+# WadsRadio station list: New York City radio stations
+# Columns: station name, stream URL, volume offset, stream type
+# WadsRadio supports direct streams and HLS .m3u8 streams; the fourth column marks which source type is used.
+# Checked but not included: WNYC AM 820 tested URLs returned 404.
+# Checked but not included: WBLS 107.5 tested StreamTheWorld URL returned 403.
+
+# Public, college, and community
+WNYC FM 93.9	https://fm939.wnyc.org/wnycfm-web	0	direct
+WQXR 105.9	https://stream.wqxr.org/wqxr-web	0	direct
+New Sounds Radio	https://q2stream.wqxr.org/q2-web	0	direct
+WFUV 90.7	http://wfuv-onair.streamguys.org/onair-hi	0	direct
+WFUV 24-7 Music	http://wfuv-music.streamguys.org/music-hi	0	direct
+WKCR 89.9 Columbia	https://wkcr.streamguys1.com/live	0	direct
+WBGO Jazz 88.3	https://ais-sa8.cdnstream1.com/3629_128.mp3	0	direct
+WFMU Freeform	https://stream0.wfmu.org/freeform-128k	0	direct
+WBAI 99.5	http://stream.wbai.org:8000/wbai_128	0	direct
+
+# News, talk, sports, and commercial
+Bloomberg Radio 1130 WBBR	https://playerservices.streamtheworld.com/api/livestream-redirect/WBBRAMAAC.aac	0	direct
+WABC 770	https://playerservices.streamtheworld.com/api/livestream-redirect/WABCAM.mp3	0	direct
+WFAN Sports Radio 101.9	https://live.amperwave.net/direct/audacy-wfanamaac-imc	0	direct
+1010 WINS	https://live.amperwave.net/direct/audacy-winsamaac-imc	0	direct
+Hot 97 WQHT	https://playerservices.streamtheworld.com/api/livestream-redirect/WQHTFM.mp3	0	direct
+Z100 WHTZ	https://stream.revma.ihrhls.com/zc1469	0	direct
+Power 105.1 WWPR	https://stream.revma.ihrhls.com/zc1481	0	direct
+Lite FM 106.7 WLTW	https://stream.revma.ihrhls.com/zc1477	0	direct
+Q104.3 WAXQ	https://stream.revma.ihrhls.com/zc1465	0	direct
+103.5 KTU WKTU	https://stream.revma.ihrhls.com/zc1473	0	direct

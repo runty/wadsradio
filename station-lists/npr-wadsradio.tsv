@@ -1,0 +1,23 @@
+# WadsRadio station list: NPR program stream and major NPR member stations
+# Columns: station name, stream URL, volume offset, stream type
+# WadsRadio supports direct streams and HLS .m3u8 streams; the fourth column marks which source type is used.
+# This is a practical NPR/member-station starter playlist, not every NPR affiliate.
+# Checked but not included: WABE tested public StreamTheWorld URLs returned 403 or 404.
+
+NPR Program Stream	https://npr-ice.streamguys1.com/live.mp3	0	direct
+KQED San Francisco	https://hls.kqed.org/hls/kqed_app/playlist.m3u8	0	hls
+WNYC FM New York	https://fm939.wnyc.org/wnycfm-web	0	direct
+KCRW Los Angeles	https://streams.kcrw.com/kcrw_aac	0	direct
+LAist 89.3 KPCC	https://live.amperwave.net/direct/southerncalipr-kpccfmmp3-imc.mp3?source=kpcc	0	direct
+KUOW Seattle	https://playerservices.streamtheworld.com/api/livestream-redirect/KUOWFM_HIGH_MP3.mp3	0	direct
+OPB Radio Portland	http://stream1.opb.org/radio.mp3	0	direct
+WBUR Boston	http://wbur-sc.streamguys.com/wbur	0	direct
+WAMU Washington DC	https://wamu.cdnstream1.com/wamu.mp3	0	direct
+WBEZ Chicago	http://stream.wbez.org/wbez128.mp3	0	direct
+WHYY Philadelphia	http://whyy.streamguys1.com/whyy-mp3	0	direct
+MPR News	https://nis.stream.publicradio.org/nis.mp3	0	direct
+KERA Dallas	http://kera-ice.streamguys.us/keralive	0	direct
+KPBS San Diego	https://kpbs.streamguys1.com/kpbs-mp3	0	direct
+WUNC North Carolina	http://wunc-ice.streamguys1.com/wunc-128-mp3	0	direct
+KUT Austin	https://streams.kut.org/4426_128.mp3	0	direct
+KNKX Seattle/Tacoma	https://knkx-live-a.edge.audiocdn.com/6284_128k	0	direct

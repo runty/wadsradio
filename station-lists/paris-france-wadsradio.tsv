@@ -1,0 +1,71 @@
+# WadsRadio station list: Paris, Ile-de-France, and major France national feeds
+# Columns: station name, stream URL, volume offset, stream type
+# WadsRadio supports direct streams and HLS .m3u8 streams; the fourth column marks which source type is used.
+# Checked but not included: Radio Libertaire current direct stream returned 404 during verification.
+# Checked but not included: Aligre FM official site exposes a Vestaradio player, but tested direct stream guesses failed.
+# Checked but not included: Radio CapSao Paris tested stream returned 404.
+# Checked but not included: Vivre FM did not have a verified direct stream in Radio Browser/current source checks.
+# Checked but not included: lower-bitrate duplicate HLS variants for France Inter, RTL, and Europe 2 when higher-quality direct streams worked.
+
+# Radio France, public, and international
+France Inter	https://icecast.radiofrance.fr/franceinter-hifi.aac	0	direct
+France Info	https://icecast.radiofrance.fr/franceinfo-hifi.aac	0	direct
+France Culture	https://icecast.radiofrance.fr/franceculture-hifi.aac	0	direct
+France Musique	https://icecast.radiofrance.fr/francemusique-hifi.aac	0	direct
+FIP	https://icecast.radiofrance.fr/fip-hifi.aac	0	direct
+Mouv'	https://icecast.radiofrance.fr/mouv-hifi.aac	0	direct
+ici Paris Ile-de-France	http://direct.francebleu.fr/live/fb1071-midfi.mp3	0	direct
+RFI Monde	http://live02.rfi.fr/rfimonde-64.mp3	0	direct
+RFI Musique	http://live02.rfi.fr/rfimusiquemonde-96k.mp3	0	direct
+
+# National news, talk, and classical
+RTL	http://streaming.radio.rtl.fr/rtl-1-44-128	0	direct
+Europe 1	https://stream.europe1.fr/europe1.aac	0	direct
+RMC	https://audio.bfmtv.com/rmcradio_128.mp3	0	direct
+BFM Radio	https://audio.bfmtv.com/bfmradio_128.mp3	0	direct
+BFM Business	https://audio.bfmtv.com/bfmbusiness_128.mp3	0	direct
+Radio Classique	https://radioclassique.ice.infomaniak.ch/radioclassique-high.mp3	0	direct
+
+# National commercial music
+Skyrock	https://icecast.skyrock.net/s/natio_mp3_128k	0	direct
+NRJ	https://scdn.nrjaudio.fm/audio1/fr/30001/mp3_128.mp3	0	direct
+Nostalgie HQ	https://streaming.nrjaudio.fm/oua8a3w2dqao?origine=playernostalgie	0	direct
+Cherie FM	https://streaming.nrjaudio.fm/ou2n2epw5hs7?origine=playercherie	0	direct
+Rire et Chansons	https://streaming.nrjaudio.fm/ou8o8xgk7oiu?origine=fluxradios	0	direct
+Fun Radio	http://streaming.radio.funradio.fr/fun-1-44-128	0	direct
+RTL2	http://streaming.radio.rtl2.fr/rtl2-1-44-128	0	direct
+Europe 2	http://europe2.lmn.fm/europe2.mp3	0	direct
+RFM	http://stream.rfm.fr/rfm.mp3	0	direct
+M Radio	http://mfm.ice.infomaniak.ch/mfm-128.mp3	0	direct
+Chante France	http://stream.chantefrance.com/Chante_France	0	direct
+Crooner Radio	https://croonerradio.ice.infomaniak.ch/croonerradio-hifi.mp3	0	direct
+
+# Paris and Ile-de-France local, community, and specialist
+Radio Nova	https://novazz.ice.infomaniak.ch/novazz-128.mp3	0	direct
+TSF Jazz	https://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3	0	direct
+Radio FG Paris	https://stream.rcs.revma.com/wknqhm4yuchvv	0	direct
+OUI FM	https://ouifm.ice.infomaniak.ch/ouifm-high.mp3	0	direct
+Generations	http://generationfm.ice.infomaniak.ch/generationfm-high.mp3	0	direct
+Ado / Swigg Paris	http://start-adofm.ice.infomaniak.ch/start-adofm-high.mp3	0	direct
+Voltage	http://start-voltage.ice.infomaniak.ch/start-voltage-high.mp3	0	direct
+Latina	http://start-latina.ice.infomaniak.ch/start-latina-high.mp3	0	direct
+Tropiques FM	http://listen.radioking.com/radio/8916/stream/19088	0	direct
+Evasion FM	http://stream.evasionfm.com/stream.mp3	0	direct
+Africa Radio Paris	https://african1paris.ice.infomaniak.ch/african1paris-128.mp3	0	direct
+Beur FM	http://broadcast.infomaniak.ch/beurfm-high.mp3	0	direct
+France Maghreb 2	http://francemaghreb2.ice.infomaniak.ch/francemaghreb2-high.mp3	0	direct
+Radio Orient	https://stream.rcs.revma.com/7hnrkawf4p8uv.mp3	0	direct
+Radio Notre Dame	https://windu.radionotredame.net/RadioNotreDame-Fm.mp3	0	direct
+Radio Courtoisie	https://ice.creacast.com/radio-courtoisie	0	direct
+RCJ	http://str0.creacast.com/radio-rcj	0	direct
+Cause Commune	http://vdl.stream-lat.org:8000/voixdulat_mp3	0	direct
+Frequence Paris Plurielle	https://direct.rfpp.net/fpp.mp3	0	direct
+Radio Campus Paris	https://www.radiocampusparis.org/stream/	0	direct
+Le Son Parisien	http://stream.lesonparisien.com/hi.mp3	0	direct
+
+# HLS-only / selected web streams
+RMC Gold	https://hls-rmcgold.nextradiotv.com/ssai/192k/media.m3u8	0	hls
+RTL 100% Hits	https://live.m6radio.quortex.io/webpHJPXnXrN7B6J7Q8mcqmxP/webradio/rtl/201/audio-64000/index.m3u8	0	hls
+RTL 100% 80	https://live.m6radio.quortex.io/webpHJPXnXrN7B6J7Q8mcqmxP/webradio/rtl100pc80/130/audio-64000/index.m3u8	0	hls
+FIP Cultes	https://stream.radiofrance.fr/fipcultes/fipcultes.m3u8?id=radiofranceBose	0	hls
+FIP Rock	https://stream.radiofrance.fr/fiprock/fiprock.m3u8?id=radiofrance	0	hls

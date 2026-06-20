@@ -17,6 +17,7 @@ ENV PORT=8080
 
 COPY --from=build /app/dist ./dist
 COPY server ./server
+COPY station-lists ./station-lists
 
 EXPOSE 8080
 

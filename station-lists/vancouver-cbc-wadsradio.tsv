@@ -1,0 +1,80 @@
+# WadsRadio station list: Metro Vancouver plus CBC national/regional feeds
+# Columns: station name, stream URL, volume offset, stream type
+# WadsRadio supports direct streams and HLS .m3u8 streams; the fourth column marks which source type is used.
+
+# Metro Vancouver
+CBC Radio One Vancouver (CBU/CBU-2)	https://cbcradiolive.akamaized.net/hls/live/2041050/ES_R1PVC/master.m3u8	0	hls
+CBC Music Pacific Vancouver (CBU-FM)	https://cbcradiolive.akamaized.net/hls/live/2041059/ES_R2PVC/master.m3u8	0	hls
+ICI Premiere Vancouver (CBUF-FM)	https://rcavliveaudio.akamaized.net/hls/live/2006975/P-2BVAN0_VAN/master.m3u8	0	hls
+ICI Musique Vancouver (CBUX-FM)	https://rcavliveaudio.akamaized.net/hls/live/2006996/M-7BVAN0_VAN/master.m3u8	0	hls
+Red FM Vancouver (CKYE-FM 93.1 / CKYE-1 89.1)	https://ice24.securenetsystems.net/CKYE	0	direct
+CJSF 90.1 FM Burnaby	https://www.cjsf.ca/streaming	0	direct
+Connect FM 91.5 Surrey (CJCN-FM)	https://stream.rcs.revma.com/ygxn9vgennruv	0	direct
+Connect FM 91.5 HD2 Surrey (CJCN-HD2)	https://stream.rcs.revma.com/dm32hsut068uv	0	direct
+JR Country 93.7 Vancouver (CJJR-FM)	https://stream.jpbgdigital.com/CJJR/HEAAC/48k/playlist.m3u8	0	hls
+Virgin Radio 94.5 Vancouver (CFBT-FM)	https://playerservices.streamtheworld.com/api/livestream-redirect/CFBTFM.mp3	0	direct
+Z95.3 Vancouver (CKZZ-FM)	http://live.leanstream.co/CKZZFM-MP3	0	direct
+Fairchild Radio 96.1 Vancouver (CHKG-FM)	https://5b2959fe11444.streamlock.net/radio/fm961.stream/playlist.m3u8	0	hls
+Jack 96.9 Vancouver (CJAX-FM)	https://rogers-hls.leanstream.co/rogers/van969.stream/playlist.m3u8	0	hls
+Wave 98.3 Vancouver (CIWV-FM)	https://stream2.statsradio.com:8152/stream	0	direct
+CFOX 99.3 Vancouver (CFOX-FM)	http://live.leanstream.co/CFOXFM-MP3	0	direct
+Vancouver Co-op Radio 100.5 (CFRO-FM)	https://listen-coopradio.sharp-stream.com/coopradio.mp3	0	direct
+Rock 101 Vancouver (CFMI-FM)	http://live.leanstream.co/CFMIFM-MP3	0	direct
+CiTR 101.9 Vancouver (CITR-FM)	http://live.citr.ca:8000/live.mp3	0	direct
+Now Radio 102.7 Vancouver (CKPK-FM)	https://stream.jpbgdigital.com/CKPK/HEAAC/48k/playlist.m3u8	0	hls
+Move 103.5 Vancouver (CHQM-FM)	https://playerservices.streamtheworld.com/api/livestream-redirect/CHQMFM.mp3	0	direct
+The Breeze 104.3 Vancouver (CHLG-FM)	http://live.leanstream.co/CHLGFM-MP3	0	direct
+Sonic Radio 104.9 Vancouver (CKKS-FM)	https://rogers-hls.leanstream.co/rogers/van1049.stream/48k/playlist.m3u8	0	hls
+The Journey 106.3 Vancouver (CJNY-FM)	https://torres-media.streamb.live/SB00168	0	direct
+Pulse FM 107.7 Surrey (CISF-FM)	http://cisffm.streamon.fm/stream/CISFFM-48k.aac	0	direct
+Evolution 107.9 Burnaby (CFML-FM)	https://evolution1079.streamb.live/SB00207	0	direct
+Sher-E-Punjab AM 600 Vancouver (CKSP)	https://ais-sa1.streamon.fm/7676_48k.aac	0	direct
+Sportsnet 650 Vancouver (CISL)	https://rogers-hls.leanstream.co/rogers/van650.stream/playlist.m3u8	0	hls
+CKNW 980 Vancouver (CKNW)	http://live.leanstream.co/CKNWAM-MP3	0	direct
+CityNews 1130 Vancouver (CKWX)	https://rogers-hls.leanstream.co/rogers/van1130.stream/playlist.m3u8	0	hls
+Spice Radio AM 1200 Vancouver (CJRJ)	http://134.209.0.236:8000/CJRJ	0	direct
+CHMB AM1320 Vancouver (CHMB)	https://n05.radiojar.com/nugqupcv8qzuv	0	direct
+
+# CBC Music national/regional feeds
+CBC Music Atlantic	https://cbcradiolive.akamaized.net/hls/live/2041055/ES_R2AHF/master.m3u8	0	hls
+CBC Music Eastern	https://cbcradiolive.akamaized.net/hls/live/2041057/ES_R2ETR/master.m3u8	0	hls
+CBC Music Central	https://cbcradiolive.akamaized.net/hls/live/2041056/ES_R2CWP/master.m3u8	0	hls
+CBC Music Mountain	https://cbcradiolive.akamaized.net/hls/live/2041058/ES_R2MED/master.m3u8	0	hls
+
+# CBC Radio One national/regional feeds
+CBC Radio One Barrie	https://cbcradiolive.akamaized.net/hls/live/2041032/ES_R1ERI/master.m3u8	0	hls
+CBC Radio One Calgary	https://cbcradiolive.akamaized.net/hls/live/2041039/ES_R1MCG/master.m3u8	0	hls
+CBC Radio One Charlottetown	https://cbcradiolive.akamaized.net/hls/live/2040985/ES_R1ACH/master.m3u8	0	hls
+CBC Radio One Corner Brook	https://cbcradiolive.akamaized.net/hls/live/2041044/ES_R1NCR/master.m3u8	0	hls
+CBC Radio One Edmonton	https://cbcradiolive.akamaized.net/hls/live/2041041/ES_R1MED/master.m3u8	0	hls
+CBC Radio One Fredericton	https://cbcradiolive.akamaized.net/hls/live/2040986/ES_R1AFR/master.m3u8	0	hls
+CBC Radio One Grand Falls-Windsor	https://cbcradiolive.akamaized.net/hls/live/2041046/ES_R1NGN/master.m3u8	0	hls
+CBC Radio One Halifax	https://cbcradiolive.akamaized.net/hls/live/2040987/ES_R1AHF/master.m3u8	0	hls
+CBC Radio One Happy Valley-Goose Bay	https://cbcradiolive.akamaized.net/hls/live/2041045/ES_R1NGB/master.m3u8	0	hls
+CBC Radio One Inuvik	https://cbcradiolive.akamaized.net/hls/live/2041042/ES_R1MNN/master.m3u8	0	hls
+CBC Radio One Iqaluit / CBC North	https://cbcradiolive.akamaized.net/hls/live/2040993/ES_R1EIQ/master.m3u8	0	hls
+CBC Radio One Kamloops	https://cbcradiolive.akamaized.net/hls/live/2041048/ES_R1PKP/master.m3u8	0	hls
+CBC Radio One Kelowna	https://cbcradiolive.akamaized.net/hls/live/2041047/ES_R1PKE/master.m3u8	0	hls
+CBC Radio One Kingston	https://cbcradiolive.akamaized.net/hls/live/2040994/ES_R1EKI/master.m3u8	0	hls
+CBC Radio One Kitchener-Waterloo	https://cbcradiolive.akamaized.net/hls/live/2040995/ES_R1EKW/master.m3u8	0	hls
+CBC Radio One London	https://cbcradiolive.akamaized.net/hls/live/2041029/ES_R1ELD/master.m3u8	0	hls
+CBC Radio One Moncton	https://cbcradiolive.akamaized.net/hls/live/2040989/ES_R1AMC/master.m3u8	0	hls
+CBC Radio One Montreal	https://cbcradiolive.akamaized.net/hls/live/2041030/ES_R1EMT/master.m3u8	0	hls
+CBC Radio One Nord Quebec	https://cbcradiolive.akamaized.net/hls/live/2040992/ES_R1ECB/master.m3u8	0	hls
+CBC Radio One Ottawa	https://cbcradiolive.akamaized.net/hls/live/2041037/ES_R1ETT/master.m3u8	0	hls
+CBC Radio One Peterborough	https://cbcradiolive.akamaized.net/hls/live/2041033/ES_R1ERI1/master.m3u8	0	hls
+CBC Radio One Prince George	https://cbcradiolive.akamaized.net/hls/live/2041049/ES_R1PPR/master.m3u8	0	hls
+CBC Radio One Quebec City	https://cbcradiolive.akamaized.net/hls/live/2041031/ES_R1EQQ/master.m3u8	0	hls
+CBC Radio One Regina	https://cbcradiolive.akamaized.net/hls/live/2041053/ES_R1SRE/master.m3u8	0	hls
+CBC Radio One Saint John	https://cbcradiolive.akamaized.net/hls/live/2040988/ES_R1ASB/master.m3u8	0	hls
+CBC Radio One Saskatoon	https://cbcradiolive.akamaized.net/hls/live/2041054/ES_R1SSA/master.m3u8	0	hls
+CBC Radio One St. John's	https://cbcradiolive.akamaized.net/hls/live/2037435/ES_R1NSN/master.m3u8	0	hls
+CBC Radio One Sudbury	https://cbcradiolive.akamaized.net/hls/live/2041034/ES_R1ESU/master.m3u8	0	hls
+CBC Radio One Sydney	https://cbcradiolive.akamaized.net/hls/live/2041043/ES_R1MNS/master.m3u8	0	hls
+CBC Radio One Thunder Bay	https://cbcradiolive.akamaized.net/hls/live/2041035/ES_R1ETH/master.m3u8	0	hls
+CBC Radio One Toronto	https://cbcradiolive.akamaized.net/hls/live/2041036/ES_R1ETR/master.m3u8	0	hls
+CBC Radio One Victoria	https://cbcradiolive.akamaized.net/hls/live/2041051/ES_R1PVI/master.m3u8	0	hls
+CBC Radio One Whitehorse	https://cbcradiolive.akamaized.net/hls/live/2041052/ES_R1PWH/master.m3u8	0	hls
+CBC Radio One Windsor	https://cbcradiolive.akamaized.net/hls/live/2041038/ES_R1EWD/master.m3u8	0	hls
+CBC Radio One Winnipeg	https://cbcradiolive.akamaized.net/hls/live/2040991/ES_R1CWP/master.m3u8	0	hls
+CBC Radio One Yellowknife	https://27033.live.streamtheworld.com/CFYKFM_CBC_SC	0	direct

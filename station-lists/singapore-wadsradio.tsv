@@ -1,0 +1,44 @@
+# WadsRadio station list: Singapore radio stations
+# Columns: station name, stream URL, volume offset, stream type
+# WadsRadio supports direct streams and HLS .m3u8 streams; the fourth column marks which source type is used.
+# Checked but not included: Channel News Asia TV HLS because it is a TV/video feed, not a radio station.
+# Checked but not included: StreamTheWorld .m3u8 variants for Mediacorp/SPH stations returned 403 during verification, so direct AAC/MP3 streams are used.
+# Checked but not included: Radio Chutney's Radio.co embed exposed a station ID, but tested direct stream URLs returned 403/404.
+# Checked but not included: guessed Power 98 and 88.3JIA side-channel stream IDs beyond the verified entries below returned 404.
+
+# Mediacorp, BBC relay, and meLISTEN
+BBC World Service Singapore 88.9 relay	http://as-hls-ww-live.akamaized.net/pool_87948813/live/ww/bbc_world_service/bbc_world_service.isml/bbc_world_service-audio%3d128000.norewind.m3u8	0	hls
+Mediacorp Ria 897	https://playerservices.streamtheworld.com/api/livestream-redirect/RIA897FM_PREM.aac	0	direct
+Mediacorp GOLD 905	https://playerservices.streamtheworld.com/api/livestream-redirect/GOLD905_PREM.aac	0	direct
+Mediacorp Symphony 924	https://playerservices.streamtheworld.com/api/livestream-redirect/SYMPHONY924_PREM.aac	0	direct
+Mediacorp YES 933	https://playerservices.streamtheworld.com/api/livestream-redirect/YES933_PREM.aac	0	direct
+Mediacorp CNA938	https://playerservices.streamtheworld.com/api/livestream-redirect/938NOW_PREM.aac	0	direct
+Mediacorp Warna 942	https://playerservices.streamtheworld.com/api/livestream-redirect/WARNA942FM_PREM.aac	0	direct
+Mediacorp CLASS 95	https://playerservices.streamtheworld.com/api/livestream-redirect/CLASS95_PREM.aac	0	direct
+Mediacorp CAPITAL 958	https://playerservices.streamtheworld.com/api/livestream-redirect/CAPITAL958FM_PREM.aac	0	direct
+Mediacorp Oli 968	https://playerservices.streamtheworld.com/api/livestream-redirect/OLI968FM_PREM.aac	0	direct
+Mediacorp LOVE 972	https://playerservices.streamtheworld.com/api/livestream-redirect/LOVE972FM_PREM.aac	0	direct
+Mediacorp 987	https://playerservices.streamtheworld.com/api/livestream-redirect/987FM_PREM.aac	0	direct
+Mediacorp indiego	https://playerservices.streamtheworld.com/api/livestream-redirect/INDIEGO_S01_PREM.aac	0	direct
+
+# SPH Media
+MONEY FM 89.3	https://playerservices.streamtheworld.com/api/livestream-redirect/MONEY_893_SC	0	direct
+ONE FM 91.3	https://playerservices.streamtheworld.com/api/livestream-redirect/ONE_FM_913_SC	0	direct
+Kiss92	https://playerservices.streamtheworld.com/api/livestream-redirect/KISS_92_SC	0	direct
+UFM100.3	https://playerservices.streamtheworld.com/api/livestream-redirect/UFM_1003_SC	0	direct
+96.3 Hao FM	https://playerservices.streamtheworld.com/api/livestream-redirect/HAO_963_SC	0	direct
+
+# So Drama / Kakee
+Power 98 Love Songs	https://playerservices.streamtheworld.com/api/livestream-redirect/POWER98_LOVESONGS.mp3	0	direct
+88.3JIA	https://playerservices.streamtheworld.com/api/livestream-redirect/883JIAAAC.aac	0	direct
+88.3JIA Cantopop	https://playerservices.streamtheworld.com/api/livestream-redirect/HARRYS_S02.mp3	0	direct
+
+# Singapore online and community stations
+Radio Masti 24x7	https://d1xx1qndjrmnw2.cloudfront.net/radiosgmasti.m3u8	0	hls
+Barakath Radio	https://stream.rcs.revma.com/cy0s94xf268uv	0	direct
+Bisme Islamic Radio	https://stream.rcs.revma.com/pcr8x50uty8uv	0	direct
+AXR Singapore	https://playerservices.streamtheworld.com/api/livestream-redirect/AXR_SINGAPORE_SC	0	direct
+Radio Melody with Brother Bjorn	https://ssl.geckohost.nz/proxy/bjorn?mp=/stream	0	direct
+973FM Blasts That Last	https://c16.radioboss.fm:18115/stream?icecast	0	direct
+Bible Witness Web Radio	https://playerservices.streamtheworld.com/api/livestream-redirect/SP_R3179571_SC	0	direct
+Beam FM Singapore	https://beamfm.streeemer.com/listen/beam_fm/radio.aac	0	direct

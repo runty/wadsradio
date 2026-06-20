@@ -5,13 +5,19 @@ A fast, responsive internet radio web app with first-class YoRadio station list 
 ## Features
 
 - Touch-friendly player for desktop and mobile browsers
-- Local station library with search, favorites, add, remove, and volume persistence
+- Bundled station lists from `station-lists/` with search, local favorites, add, remove, reorder, and volume persistence
 - HLS playback for `.m3u8` / `playlist.m3u8` station URLs, including Chrome support through `hls.js`
 - Mobile lock-screen and notification controls through the Media Session API
 - Rich now-playing panel with stream title, artist, station name, genre, bitrate, and audio format when the stream publishes ICY/Shoutcast metadata
 - Import from YoRadio `playlist.csv`, YoRadio/KaRadio JSON-line station lists, M3U/M3U8 station lists, PLS, and simple CSV/text rows
 - Export back to YoRadio-compatible `playlist.csv`
 - Static build served by a small Node server for simple Linux Docker deployment
+
+## Station lists and favorites
+
+WadsRadio discovers bundled playlists from `station-lists/` through `/api/station-lists`. Add a `.tsv`, `.csv`, `.m3u`, `.m3u8`, `.pls`, or `.txt` station-list file to that directory and restart the server to make it available in the list picker.
+
+Bundled lists are read-only in the browser. Tapping the heart on any station copies it to the user's local Favorites playlist. Favorites are stored in browser localStorage, can be reordered or removed, and can be exported as a YoRadio-compatible `playlist.csv`.
 
 ## YoRadio playlist format
 

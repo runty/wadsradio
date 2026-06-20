@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { handleHlsProxyRequest } from './server/hls.mjs'
 import { readStreamMetadata } from './server/metadata.mjs'
+import { handleStationListRequest, handleStationListsRequest } from './server/station-lists.mjs'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -31,6 +32,15 @@ export default defineConfig({
         server.middlewares.use('/api/hls', async (request, response) => {
           const requestUrl = new URL(request.url ?? '', 'http://localhost/api/hls')
           await handleHlsProxyRequest(requestUrl, response, request)
+        })
+
+        server.middlewares.use('/api/station-lists', async (_request, response) => {
+          await handleStationListsRequest(response)
+        })
+
+        server.middlewares.use('/api/station-list', async (request, response) => {
+          const requestUrl = new URL(request.url ?? '', 'http://localhost/api/station-list')
+          await handleStationListRequest(requestUrl, response)
         })
       },
     },

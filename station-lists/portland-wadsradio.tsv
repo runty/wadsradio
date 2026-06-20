@@ -1,0 +1,19 @@
+# WadsRadio station list: Portland radio stations
+# Columns: station name, stream URL, volume offset, stream type
+# WadsRadio supports direct streams and HLS .m3u8 streams; the fourth column marks which source type is used.
+# Checked but not included: KINK, KNRK, KUPL, and KXL tested Alpha/WideOrbit URLs failed direct playback.
+
+# Public, college, community, and jazz/classical
+OPB Radio KOPB 91.5	http://stream1.opb.org/radio.mp3	0	direct
+KMHD Jazz Radio	https://ais-sa3.cdnstream1.com/2442_128.aac/playlist.m3u8	0	hls
+KMHD2	https://live.amperwave.net/manifest/mhcc-kmhchd2aac-hlsc1.m3u8	0	hls
+KBOO 90.7	http://live.kboo.fm:8000/high	0	direct
+XRAY FM KXRY 91.1	http://listen.xray.fm:8000/stream	0	direct
+Portland Radio Project	http://prpfm.streamon.fm:8000/PRPFM-64k.aac	0	direct
+All Classical Radio KQAC	https://allclassical.streamguys1.com/ac128kmp3	0	direct
+Freeform Portland	https://listen.freeformportland.org/stream	0	direct
+
+# News, sports, and commercial
+KGON 92.3	https://stream.revma.ihrhls.com/zc1941	0	direct
+K103 Portland KKCW	https://stream.revma.ihrhls.com/zc1965	0	direct
+Rip City Radio 620 KPOJ	https://stream.revma.ihrhls.com/zc1969	0	direct

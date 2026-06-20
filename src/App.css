@@ -6,6 +6,15 @@
   background: var(--app-wash);
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
 .topbar {
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
@@ -54,7 +63,8 @@
 .brand p,
 .player-copy h2,
 .player-copy p,
-.library-header h2 {
+.library-header h2,
+.playlist-heading p {
   margin: 0;
 }
 
@@ -452,6 +462,7 @@
 .segmented button:focus-visible,
 .wads-theme-switch button:focus-visible,
 input:focus-visible,
+select:focus-visible,
 textarea:focus-visible,
 .drop-zone:focus-visible {
   outline: 2px solid var(--accent);
@@ -538,6 +549,43 @@ textarea:focus-visible,
   margin-top: 5px;
   color: var(--heading);
   font-size: 1.55rem;
+}
+
+.playlist-heading {
+  min-width: 0;
+}
+
+.playlist-heading h2 {
+  overflow-wrap: anywhere;
+}
+
+.playlist-heading p {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.playlist-picker {
+  min-width: min(320px, 50%);
+  min-height: 46px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  background: var(--field);
+}
+
+.playlist-picker select {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  color: var(--heading);
+  background: transparent;
+  font: inherit;
 }
 
 .segmented {
@@ -659,6 +707,16 @@ body.station-reordering * {
 
 .drag-handle:active {
   cursor: grabbing;
+}
+
+.drag-handle:disabled {
+  opacity: 0.42;
+  cursor: default;
+}
+
+.drag-handle:disabled:hover {
+  color: var(--muted);
+  background: transparent;
 }
 
 .station-main {
@@ -920,6 +978,12 @@ textarea {
   .library-header {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .playlist-picker {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
 
   .segmented {

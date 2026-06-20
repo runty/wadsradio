@@ -5,6 +5,7 @@ import { extname, join, normalize } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { handleHlsProxyRequest } from './hls.mjs'
 import { readStreamMetadata } from './metadata.mjs'
+import { handleStationListRequest, handleStationListsRequest } from './station-lists.mjs'
 
 const PORT = Number.parseInt(process.env.PORT ?? '8080', 10)
 const DIST_DIR = fileURLToPath(new URL('../dist', import.meta.url))
@@ -38,6 +39,16 @@ createServer(async (request, response) => {
 
   if (requestUrl.pathname === '/api/hls') {
     await handleHlsProxyRequest(requestUrl, response, request)
+    return
+  }
+
+  if (requestUrl.pathname === '/api/station-lists') {
+    await handleStationListsRequest(response)
+    return
+  }
+
+  if (requestUrl.pathname === '/api/station-list') {
+    await handleStationListRequest(requestUrl, response)
     return
   }
 
