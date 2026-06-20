@@ -9,6 +9,7 @@ A fast, responsive internet radio web app with first-class YoRadio station list 
 - HLS playback for `.m3u8` / `playlist.m3u8` station URLs, including Chrome support through `hls.js`
 - Mobile lock-screen and notification controls through the Media Session API
 - Rich now-playing panel with stream title, artist, station name, genre, bitrate, and audio format when the stream publishes ICY/Shoutcast metadata
+- Station logos from playlist logo URLs, bundled local logo badges, favicon fallbacks, and initials fallbacks
 - Import from YoRadio `playlist.csv`, YoRadio/KaRadio JSON-line station lists, M3U/M3U8 station lists, PLS, and simple CSV/text rows
 - Export back to YoRadio-compatible `playlist.csv`
 - Static build served by a small Node server for simple Linux Docker deployment
@@ -18,6 +19,14 @@ A fast, responsive internet radio web app with first-class YoRadio station list 
 WadsRadio discovers bundled playlists from `station-lists/` through `/api/station-lists`. Add a `.tsv`, `.csv`, `.m3u`, `.m3u8`, `.pls`, or `.txt` station-list file to that directory and restart the server to make it available in the list picker.
 
 Bundled lists are read-only in the browser. Tapping the heart on any station copies it to the user's local Favorites playlist. Favorites are stored in browser localStorage, can be reordered or removed, and can be exported as a YoRadio-compatible `playlist.csv`.
+
+Bundled TSV lists use these columns:
+
+```text
+Station name	https://stream.example/radio	0	direct	/station-logos/example.svg
+```
+
+The fourth column is informational and may be `direct` or `hls`. The fifth column is optional and can be a local path under `public/`, an `https://` image URL, or a `data:image/...` URL. When a playlist does not provide a logo, WadsRadio tries a curated local badge for known stations, then a domain favicon, then station initials. Generic stream-host favicons are skipped so stations do not show low-quality hosting-provider icons.
 
 ## YoRadio playlist format
 

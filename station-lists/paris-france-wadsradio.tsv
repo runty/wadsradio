@@ -1,6 +1,6 @@
 # WadsRadio station list: Paris, Ile-de-France, and major France national feeds
-# Columns: station name, stream URL, volume offset, stream type
-# WadsRadio supports direct streams and HLS .m3u8 streams; the fourth column marks which source type is used.
+# Columns: station name, stream URL, volume offset, stream type, logo URL
+# WadsRadio supports direct streams and HLS .m3u8 streams; the optional fifth column points at a local or remote station logo.
 # Checked but not included: Radio Libertaire current direct stream returned 404 during verification.
 # Checked but not included: Aligre FM official site exposes a Vestaradio player, but tested direct stream guesses failed.
 # Checked but not included: Radio CapSao Paris tested stream returned 404.
@@ -8,19 +8,19 @@
 # Checked but not included: lower-bitrate duplicate HLS variants for France Inter, RTL, and Europe 2 when higher-quality direct streams worked.
 
 # Radio France, public, and international
-France Inter	https://icecast.radiofrance.fr/franceinter-hifi.aac	0	direct
-France Info	https://icecast.radiofrance.fr/franceinfo-hifi.aac	0	direct
-France Culture	https://icecast.radiofrance.fr/franceculture-hifi.aac	0	direct
-France Musique	https://icecast.radiofrance.fr/francemusique-hifi.aac	0	direct
-FIP	https://icecast.radiofrance.fr/fip-hifi.aac	0	direct
-Mouv'	https://icecast.radiofrance.fr/mouv-hifi.aac	0	direct
-ici Paris Ile-de-France	http://direct.francebleu.fr/live/fb1071-midfi.mp3	0	direct
-RFI Monde	http://live02.rfi.fr/rfimonde-64.mp3	0	direct
-RFI Musique	http://live02.rfi.fr/rfimusiquemonde-96k.mp3	0	direct
+France Inter	https://icecast.radiofrance.fr/franceinter-hifi.aac	0	direct	/station-logos/radio-france.svg
+France Info	https://icecast.radiofrance.fr/franceinfo-hifi.aac	0	direct	/station-logos/radio-france.svg
+France Culture	https://icecast.radiofrance.fr/franceculture-hifi.aac	0	direct	/station-logos/radio-france.svg
+France Musique	https://icecast.radiofrance.fr/francemusique-hifi.aac	0	direct	/station-logos/radio-france.svg
+FIP	https://icecast.radiofrance.fr/fip-hifi.aac	0	direct	/station-logos/fip.svg
+Mouv'	https://icecast.radiofrance.fr/mouv-hifi.aac	0	direct	/station-logos/radio-france.svg
+ici Paris Ile-de-France	http://direct.francebleu.fr/live/fb1071-midfi.mp3	0	direct	/station-logos/radio-france.svg
+RFI Monde	http://live02.rfi.fr/rfimonde-64.mp3	0	direct	/station-logos/rfi.svg
+RFI Musique	http://live02.rfi.fr/rfimusiquemonde-96k.mp3	0	direct	/station-logos/rfi.svg
 
 # National news, talk, and classical
-RTL	http://streaming.radio.rtl.fr/rtl-1-44-128	0	direct
-Europe 1	https://stream.europe1.fr/europe1.aac	0	direct
+RTL	http://streaming.radio.rtl.fr/rtl-1-44-128	0	direct	/station-logos/rtl.svg
+Europe 1	https://stream.europe1.fr/europe1.aac	0	direct	/station-logos/europe1.svg
 RMC	https://audio.bfmtv.com/rmcradio_128.mp3	0	direct
 BFM Radio	https://audio.bfmtv.com/bfmradio_128.mp3	0	direct
 BFM Business	https://audio.bfmtv.com/bfmbusiness_128.mp3	0	direct
@@ -28,13 +28,13 @@ Radio Classique	https://radioclassique.ice.infomaniak.ch/radioclassique-high.mp3
 
 # National commercial music
 Skyrock	https://icecast.skyrock.net/s/natio_mp3_128k	0	direct
-NRJ	https://scdn.nrjaudio.fm/audio1/fr/30001/mp3_128.mp3	0	direct
-Nostalgie HQ	https://streaming.nrjaudio.fm/oua8a3w2dqao?origine=playernostalgie	0	direct
-Cherie FM	https://streaming.nrjaudio.fm/ou2n2epw5hs7?origine=playercherie	0	direct
-Rire et Chansons	https://streaming.nrjaudio.fm/ou8o8xgk7oiu?origine=fluxradios	0	direct
+NRJ	https://scdn.nrjaudio.fm/audio1/fr/30001/mp3_128.mp3	0	direct	/station-logos/nrj.svg
+Nostalgie HQ	https://streaming.nrjaudio.fm/oua8a3w2dqao?origine=playernostalgie	0	direct	/station-logos/nrj.svg
+Cherie FM	https://streaming.nrjaudio.fm/ou2n2epw5hs7?origine=playercherie	0	direct	/station-logos/nrj.svg
+Rire et Chansons	https://streaming.nrjaudio.fm/ou8o8xgk7oiu?origine=fluxradios	0	direct	/station-logos/nrj.svg
 Fun Radio	http://streaming.radio.funradio.fr/fun-1-44-128	0	direct
-RTL2	http://streaming.radio.rtl2.fr/rtl2-1-44-128	0	direct
-Europe 2	http://europe2.lmn.fm/europe2.mp3	0	direct
+RTL2	http://streaming.radio.rtl2.fr/rtl2-1-44-128	0	direct	/station-logos/rtl.svg
+Europe 2	http://europe2.lmn.fm/europe2.mp3	0	direct	/station-logos/europe1.svg
 RFM	http://stream.rfm.fr/rfm.mp3	0	direct
 M Radio	http://mfm.ice.infomaniak.ch/mfm-128.mp3	0	direct
 Chante France	http://stream.chantefrance.com/Chante_France	0	direct
@@ -65,7 +65,7 @@ Le Son Parisien	http://stream.lesonparisien.com/hi.mp3	0	direct
 
 # HLS-only / selected web streams
 RMC Gold	https://hls-rmcgold.nextradiotv.com/ssai/192k/media.m3u8	0	hls
-RTL 100% Hits	https://live.m6radio.quortex.io/webpHJPXnXrN7B6J7Q8mcqmxP/webradio/rtl/201/audio-64000/index.m3u8	0	hls
-RTL 100% 80	https://live.m6radio.quortex.io/webpHJPXnXrN7B6J7Q8mcqmxP/webradio/rtl100pc80/130/audio-64000/index.m3u8	0	hls
-FIP Cultes	https://stream.radiofrance.fr/fipcultes/fipcultes.m3u8?id=radiofranceBose	0	hls
-FIP Rock	https://stream.radiofrance.fr/fiprock/fiprock.m3u8?id=radiofrance	0	hls
+RTL 100% Hits	https://live.m6radio.quortex.io/webpHJPXnXrN7B6J7Q8mcqmxP/webradio/rtl/201/audio-64000/index.m3u8	0	hls	/station-logos/rtl.svg
+RTL 100% 80	https://live.m6radio.quortex.io/webpHJPXnXrN7B6J7Q8mcqmxP/webradio/rtl100pc80/130/audio-64000/index.m3u8	0	hls	/station-logos/rtl.svg
+FIP Cultes	https://stream.radiofrance.fr/fipcultes/fipcultes.m3u8?id=radiofranceBose	0	hls	/station-logos/fip.svg
+FIP Rock	https://stream.radiofrance.fr/fiprock/fiprock.m3u8?id=radiofrance	0	hls	/station-logos/fip.svg

@@ -1,14 +1,14 @@
 # WadsRadio station list: Seattle radio stations
-# Columns: station name, stream URL, volume offset, stream type
-# WadsRadio supports direct streams and HLS .m3u8 streams; the fourth column marks which source type is used.
+# Columns: station name, stream URL, volume offset, stream type, logo URL
+# WadsRadio supports direct streams and HLS .m3u8 streams; the optional fifth column points at a local or remote station logo.
 # Checked but not included: KOMO News tested StreamTheWorld URLs returned 404.
 
 # Public, college, and community
-KEXP 90.3 Seattle	https://kexp.streamguys1.com/kexp160.aac	0	direct
-KUOW 94.9	https://playerservices.streamtheworld.com/api/livestream-redirect/KUOWFM_HIGH_MP3.mp3	0	direct
-KNKX 88.5	https://knkx-live-a.edge.audiocdn.com/6284_128k	0	direct
-Jazz24	https://knkx-live-a.edge.audiocdn.com/6285_256k	0	direct
-Classical KING FM 98.1	http://classicalking.streamguys1.com/king-fm-mp3	0	direct
+KEXP 90.3 Seattle	https://kexp.streamguys1.com/kexp160.aac	0	direct	/station-logos/kexp.svg
+KUOW 94.9	https://playerservices.streamtheworld.com/api/livestream-redirect/KUOWFM_HIGH_MP3.mp3	0	direct	/station-logos/kuow.svg
+KNKX 88.5	https://knkx-live-a.edge.audiocdn.com/6284_128k	0	direct	/station-logos/knkx.svg
+Jazz24	https://knkx-live-a.edge.audiocdn.com/6285_256k	0	direct	/station-logos/jazz24.svg
+Classical KING FM 98.1	http://classicalking.streamguys1.com/king-fm-mp3	0	direct	/station-logos/king-fm.svg
 C89.5 KNHC	http://streams.c895.org/live	0	direct
 KBCS 91.3 Bellevue	http://stream.pacificaservice.org:8000/kbcs	0	direct
 KBFG 107.3	http://192.81.134.38:8001/kbfg-1	0	direct

@@ -1,13 +1,13 @@
 # WadsRadio station list: Los Angeles radio stations
-# Columns: station name, stream URL, volume offset, stream type
-# WadsRadio supports direct streams and HLS .m3u8 streams; the fourth column marks which source type is used.
+# Columns: station name, stream URL, volume offset, stream type, logo URL
+# WadsRadio supports direct streams and HLS .m3u8 streams; the optional fifth column points at a local or remote station logo.
 # Checked but not included: KLOS, Power 106 KPWR, and KJLH tested URLs failed or denied direct playback.
 
 # Public, college, and community
-KCRW 89.9 Live	https://streams.kcrw.com/kcrw_aac	0	direct
-KCRW Eclectic 24	https://streams.kcrw.com/e24_aac	0	direct
-KCRW News 24	https://streams.kcrw.com/news24_aac	0	direct
-LAist 89.3 KPCC	https://live.amperwave.net/direct/southerncalipr-kpccfmmp3-imc.mp3?source=kpcc	0	direct
+KCRW 89.9 Live	https://streams.kcrw.com/kcrw_aac	0	direct	/station-logos/kcrw.svg
+KCRW Eclectic 24	https://streams.kcrw.com/e24_aac	0	direct	/station-logos/kcrw.svg
+KCRW News 24	https://streams.kcrw.com/news24_aac	0	direct	/station-logos/kcrw.svg
+LAist 89.3 KPCC	https://live.amperwave.net/direct/southerncalipr-kpccfmmp3-imc.mp3?source=kpcc	0	direct	/station-logos/laist.svg
 KUSC 91.5 Classical	https://16603.live.streamtheworld.com/KUSCAAC96_SC	0	direct
 KXLU 88.9 Loyola Marymount	http://www.ednixon.com:8120/stream	0	direct
 KPFK 90.7	https://streams.pacifica.org:9000/kpfk_64	0	direct

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="HAO station badge">
+  <rect width="128" height="128" rx="30" fill="#b45309"/>
+  <circle cx="31" cy="31" r="18" fill="#fff7df" opacity="0.14"/>
+  <circle cx="101" cy="99" r="22" fill="#fff7df" opacity="0.12"/>
+  <path d="M27 82c18-18 56-18 74 0" fill="none" stroke="#fff7df" stroke-width="7" stroke-linecap="round" opacity="0.26"/>
+  <path d="M42 66c11-10 33-10 44 0" fill="none" stroke="#fff7df" stroke-width="6" stroke-linecap="round" opacity="0.42"/>
+  <text x="64" y="72" text-anchor="middle" dominant-baseline="middle" fill="#fff7df" font-family="Arial Black, Arial, sans-serif" font-size="42" font-weight="900" letter-spacing="0">HAO</text>
+</svg>

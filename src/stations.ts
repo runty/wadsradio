@@ -1,5 +1,6 @@
 export type Station = {
   id: string
+  logoUrl?: string
   name: string
   url: string
   volumeOffset: number
@@ -27,12 +28,15 @@ export function createStation(
   url: string,
   volumeOffset = 0,
   favorite = false,
+  logoUrl = '',
 ): Station {
   const cleanName = cleanField(name) || stationNameFromUrl(url)
   const cleanUrl = normalizeStreamUrl(url)
+  const cleanLogoUrl = normalizeLogoUrl(logoUrl)
 
   return {
     id: makeStationId(cleanName, cleanUrl),
+    ...(cleanLogoUrl ? { logoUrl: cleanLogoUrl } : {}),
     name: cleanName,
     url: cleanUrl,
     volumeOffset: clampVolumeOffset(volumeOffset),
@@ -58,6 +62,7 @@ export function parseStationList(input: string): ParsedStations {
   }
 
   let pendingM3uTitle = ''
+  let pendingM3uLogoUrl = ''
 
   for (const rawLine of lines) {
     const line = rawLine.trim()
@@ -65,6 +70,7 @@ export function parseStationList(input: string): ParsedStations {
 
     if (!isHlsMediaPlaylist && /^#EXTINF/i.test(line)) {
       pendingM3uTitle = cleanField(line.replace(/^#EXTINF:[^,]*,?/i, ''))
+      pendingM3uLogoUrl = readM3uLogoUrl(line)
       format = 'M3U'
       continue
     }
@@ -72,8 +78,14 @@ export function parseStationList(input: string): ParsedStations {
     if (line.startsWith('#')) continue
 
     if (!isHlsMediaPlaylist && pendingM3uTitle && looksLikeStreamUrl(line)) {
-      drafts.push({ name: pendingM3uTitle, url: normalizeStreamUrl(line), volumeOffset: 0 })
+      drafts.push({
+        logoUrl: pendingM3uLogoUrl,
+        name: pendingM3uTitle,
+        url: normalizeStreamUrl(line),
+        volumeOffset: 0,
+      })
       pendingM3uTitle = ''
+      pendingM3uLogoUrl = ''
       format = 'M3U'
       continue
     }
@@ -81,6 +93,7 @@ export function parseStationList(input: string): ParsedStations {
     const tsv = parseDelimitedLine(line, '\t')
     if (tsv && looksLikeStreamUrl(tsv[1])) {
       drafts.push({
+        logoUrl: normalizeLogoUrl(tsv[4]),
         name: tsv[0],
         url: normalizeStreamUrl(tsv[1]),
         volumeOffset: parseVolumeOffset(tsv[2]),
@@ -99,6 +112,7 @@ export function parseStationList(input: string): ParsedStations {
     const csv = parseDelimitedLine(line, ',')
     if (csv && csv.length >= 2 && looksLikeStreamUrl(csv[1])) {
       drafts.push({
+        logoUrl: normalizeLogoUrl(csv[4]),
         name: csv[0],
         url: normalizeStreamUrl(csv[1]),
         volumeOffset: parseVolumeOffset(csv[2]),
@@ -151,9 +165,11 @@ function parseJsonStation(line: string): StationDraft | null {
 
   const nameValue = firstString(object, ['name', 'station', 'title', 'n']) ?? firstStringValue(object)
   const urlValue = firstString(object, ['url', 'stream', 'streamUrl', 'stream_url'])
+  const logoUrl = normalizeLogoUrl(firstString(object, ['logoUrl', 'logo', 'favicon', 'image', 'icon']))
 
   if (nameValue && urlValue && looksLikeStreamUrl(urlValue)) {
     return {
+      logoUrl,
       name: nameValue,
       url: normalizeStreamUrl(urlValue),
       volumeOffset: parseVolumeOffset(firstString(object, ['ovol', 'volume', 'volumeOffset'])),
@@ -178,6 +194,7 @@ function parseJsonStation(line: string): StationDraft | null {
   }
 
   return {
+    logoUrl,
     name: nameValue,
     url: normalizeStreamUrl(url),
     volumeOffset: parseVolumeOffset(firstString(object, ['ovol', 'volume', 'volumeOffset'])),
@@ -278,7 +295,7 @@ function uniqueStations(drafts: StationDraft[]): Station[] {
     if (!draft.name || !url || seenUrls.has(dedupeKey)) continue
 
     seenUrls.add(dedupeKey)
-    let station = createStation(draft.name, url, draft.volumeOffset, draft.favorite ?? false)
+    let station = createStation(draft.name, url, draft.volumeOffset, draft.favorite ?? false, draft.logoUrl)
     let suffix = 2
 
     while (usedIds.has(station.id)) {
@@ -300,9 +317,21 @@ function normalizeStreamUrl(url: string): string {
   return `http://${cleanUrl.replace(/^\/+/, '')}`
 }
 
+function normalizeLogoUrl(value: unknown): string {
+  const cleanValue = cleanField(value)
+  if (!cleanValue) return ''
+  if (/^(https?:\/\/|data:image\/|\/)/i.test(cleanValue)) return cleanValue
+  return ''
+}
+
 function looksLikeStreamUrl(value: string): boolean {
   const cleanValue = cleanField(value)
   return /^(https?:\/\/|icy:\/\/|mms:\/\/)/i.test(cleanValue) || /^[a-z0-9.-]+\.[a-z]{2,}(:\d+)?\/.+/i.test(cleanValue)
+}
+
+function readM3uLogoUrl(line: string): string {
+  const logoMatch = line.match(/\b(?:tvg-logo|logo)=["']([^"']+)["']/i)
+  return normalizeLogoUrl(logoMatch?.[1])
 }
 
 function stationNameFromUrl(url: string): string {

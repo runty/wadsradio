@@ -1,26 +1,26 @@
 # WadsRadio station list: UK national, London local, BBC, Sky, Virgin, Global, Bauer, and specialist stations
-# Columns: station name, stream URL, volume offset, stream type
-# WadsRadio supports direct streams and HLS .m3u8 streams; the fourth column marks which source type is used.
+# Columns: station name, stream URL, volume offset, stream type, logo URL
+# WadsRadio supports direct streams and HLS .m3u8 streams; the optional fifth column points at a local or remote station logo.
 # Checked but not included: BBC Radio 5 Sports Extra did not return a playable stream from the tested URL.
 # Checked but not included: Virgin Radio 80s Plus and Virgin Radio 90s guessed stream paths returned 404.
 # Checked but not included: generic Bauer stream-al URLs for Greatest Hits, Hits, and Jazz FM returned errors from this location.
 
 # BBC national and London
-BBC Radio 1	http://as-hls-ww-live.akamaized.net/pool_01505109/live/ww/bbc_radio_one/bbc_radio_one.isml/bbc_radio_one-audio%3d320000.norewind.m3u8	0	hls
-BBC Radio 1 Anthems	http://as-hls-ww-live.akamaized.net/pool_11351741/live/ww/bbc_radio_one_anthems/bbc_radio_one_anthems.isml/bbc_radio_one_anthems-audio%3d128000.norewind.m3u8	0	hls
-BBC Radio 1 Dance	http://as-hls-ww-live.akamaized.net/pool_62063831/live/ww/bbc_radio_one_dance/bbc_radio_one_dance.isml/bbc_radio_one_dance-audio%3d128000.norewind.m3u8	0	hls
-BBC Radio 1Xtra	http://as-hls-ww-live.akamaized.net/pool_92079267/live/ww/bbc_1xtra/bbc_1xtra.isml/bbc_1xtra-audio%3d128000.norewind.m3u8	0	hls
-BBC Radio 2	http://as-hls-ww-live.akamaized.net/pool_74208725/live/ww/bbc_radio_two/bbc_radio_two.isml/bbc_radio_two-audio%3d320000.norewind.m3u8	0	hls
-BBC Radio 3	http://as-hls-ww-live.akamaized.net/pool_23461179/live/ww/bbc_radio_three/bbc_radio_three.isml/bbc_radio_three-audio%3d320000.norewind.m3u8	0	hls
-BBC Radio 3 Unwind	http://as-hls-ww-live.akamaized.net/pool_30624046/live/ww/bbc_radio_three_unwind/bbc_radio_three_unwind.isml/bbc_radio_three_unwind-audio%3d128000.norewind.m3u8	0	hls
-BBC Radio 4 FM	http://as-hls-ww-live.akamaized.net/pool_55057080/live/ww/bbc_radio_fourfm/bbc_radio_fourfm.isml/bbc_radio_fourfm-audio%3d320000.norewind.m3u8	0	hls
-BBC Radio 4 Extra	http://as-hls-ww-live.akamaized.net/pool_26173715/live/ww/bbc_radio_four_extra/bbc_radio_four_extra.isml/bbc_radio_four_extra-audio%3d320000.norewind.m3u8	0	hls
-BBC Radio 5 Live	http://as-hls-ww-live.akamaized.net/pool_89021708/live/ww/bbc_radio_five_live/bbc_radio_five_live.isml/bbc_radio_five_live-audio%3d128000.norewind.m3u8	0	hls
-BBC Radio 6 Music	http://as-hls-ww-live.akamaized.net/pool_81827798/live/ww/bbc_6music/bbc_6music.isml/bbc_6music-audio%3d320000.norewind.m3u8	0	hls
-BBC Asian Network	http://as-hls-ww-live.akamaized.net/pool_22108647/live/ww/bbc_asian_network/bbc_asian_network.isml/bbc_asian_network-audio%3d128000.norewind.m3u8	0	hls
-BBC World Service	http://as-hls-ww-live.akamaized.net/pool_87948813/live/ww/bbc_world_service/bbc_world_service.isml/bbc_world_service-audio%3d128000.norewind.m3u8	0	hls
-BBC Live News	http://as-hls-ww-live.akamaized.net/pool_53367543/live/ww/bbc_sounds_news/bbc_sounds_news.isml/bbc_sounds_news-audio%3d128000.norewind.m3u8	0	hls
-BBC Radio London	http://as-hls-ww-live.akamaized.net/pool_98137350/live/ww/bbc_london/bbc_london.isml/bbc_london-audio%3d128000.norewind.m3u8	0	hls
+BBC Radio 1	http://as-hls-ww-live.akamaized.net/pool_01505109/live/ww/bbc_radio_one/bbc_radio_one.isml/bbc_radio_one-audio%3d320000.norewind.m3u8	0	hls	/station-logos/bbc.svg
+BBC Radio 1 Anthems	http://as-hls-ww-live.akamaized.net/pool_11351741/live/ww/bbc_radio_one_anthems/bbc_radio_one_anthems.isml/bbc_radio_one_anthems-audio%3d128000.norewind.m3u8	0	hls	/station-logos/bbc.svg
+BBC Radio 1 Dance	http://as-hls-ww-live.akamaized.net/pool_62063831/live/ww/bbc_radio_one_dance/bbc_radio_one_dance.isml/bbc_radio_one_dance-audio%3d128000.norewind.m3u8	0	hls	/station-logos/bbc.svg
+BBC Radio 1Xtra	http://as-hls-ww-live.akamaized.net/pool_92079267/live/ww/bbc_1xtra/bbc_1xtra.isml/bbc_1xtra-audio%3d128000.norewind.m3u8	0	hls	/station-logos/bbc.svg
+BBC Radio 2	http://as-hls-ww-live.akamaized.net/pool_74208725/live/ww/bbc_radio_two/bbc_radio_two.isml/bbc_radio_two-audio%3d320000.norewind.m3u8	0	hls	/station-logos/bbc.svg
+BBC Radio 3	http://as-hls-ww-live.akamaized.net/pool_23461179/live/ww/bbc_radio_three/bbc_radio_three.isml/bbc_radio_three-audio%3d320000.norewind.m3u8	0	hls	/station-logos/bbc.svg
+BBC Radio 3 Unwind	http://as-hls-ww-live.akamaized.net/pool_30624046/live/ww/bbc_radio_three_unwind/bbc_radio_three_unwind.isml/bbc_radio_three_unwind-audio%3d128000.norewind.m3u8	0	hls	/station-logos/bbc.svg
+BBC Radio 4 FM	http://as-hls-ww-live.akamaized.net/pool_55057080/live/ww/bbc_radio_fourfm/bbc_radio_fourfm.isml/bbc_radio_fourfm-audio%3d320000.norewind.m3u8	0	hls	/station-logos/bbc.svg
+BBC Radio 4 Extra	http://as-hls-ww-live.akamaized.net/pool_26173715/live/ww/bbc_radio_four_extra/bbc_radio_four_extra.isml/bbc_radio_four_extra-audio%3d320000.norewind.m3u8	0	hls	/station-logos/bbc.svg
+BBC Radio 5 Live	http://as-hls-ww-live.akamaized.net/pool_89021708/live/ww/bbc_radio_five_live/bbc_radio_five_live.isml/bbc_radio_five_live-audio%3d128000.norewind.m3u8	0	hls	/station-logos/bbc.svg
+BBC Radio 6 Music	http://as-hls-ww-live.akamaized.net/pool_81827798/live/ww/bbc_6music/bbc_6music.isml/bbc_6music-audio%3d320000.norewind.m3u8	0	hls	/station-logos/bbc.svg
+BBC Asian Network	http://as-hls-ww-live.akamaized.net/pool_22108647/live/ww/bbc_asian_network/bbc_asian_network.isml/bbc_asian_network-audio%3d128000.norewind.m3u8	0	hls	/station-logos/bbc.svg
+BBC World Service	http://as-hls-ww-live.akamaized.net/pool_87948813/live/ww/bbc_world_service/bbc_world_service.isml/bbc_world_service-audio%3d128000.norewind.m3u8	0	hls	/station-logos/bbc.svg
+BBC Live News	http://as-hls-ww-live.akamaized.net/pool_53367543/live/ww/bbc_sounds_news/bbc_sounds_news.isml/bbc_sounds_news-audio%3d128000.norewind.m3u8	0	hls	/station-logos/bbc.svg
+BBC Radio London	http://as-hls-ww-live.akamaized.net/pool_98137350/live/ww/bbc_london/bbc_london.isml/bbc_london-audio%3d128000.norewind.m3u8	0	hls	/station-logos/bbc.svg
 
 # News, sport, Sky, and Virgin
 Sky News Radio	https://tunein.cdnstream1.com/3688_96.mp3	0	direct
@@ -28,34 +28,34 @@ talkSPORT	https://radio.talksport.com/stream	0	direct
 talkSPORT 2	https://radio.talksport.com/stream2	0	direct
 Times Radio	https://timesradio.wireless.radio/stream	0	direct
 Talk	https://radio.talkradio.co.uk/stream	0	direct
-Virgin Radio UK	https://radio.virginradio.co.uk/stream	0	direct
-Virgin Radio Anthems	https://radio.virginradio.co.uk/stream-anthems	0	direct
-Virgin Radio Chilled	https://radio.virginradio.co.uk/stream-chilled	0	direct
-Virgin Radio Legends	https://radio.virginradio.co.uk/stream-legends	0	direct
+Virgin Radio UK	https://radio.virginradio.co.uk/stream	0	direct	/station-logos/virgin.svg
+Virgin Radio Anthems	https://radio.virginradio.co.uk/stream-anthems	0	direct	/station-logos/virgin.svg
+Virgin Radio Chilled	https://radio.virginradio.co.uk/stream-chilled	0	direct	/station-logos/virgin.svg
+Virgin Radio Legends	https://radio.virginradio.co.uk/stream-legends	0	direct	/station-logos/virgin.svg
 
 # Global / London commercial
-Capital London	https://media-ssl.musicradio.com/CapitalMP3	0	direct
-Capital XTRA London	https://media-ssl.musicradio.com/CapitalXTRALondonMP3	0	direct
-Capital Dance	https://icecast.thisisdax.com/CapitalDanceMP3	0	direct
-Heart London	https://media-ssl.musicradio.com/HeartLondonMP3	0	direct
-Heart 80s	https://media-ssl.musicradio.com/Heart80sMP3	0	direct
-Heart Dance	https://media-ssl.musicradio.com/HeartDanceMP3	0	direct
-Smooth London	https://media-ssl.musicradio.com/SmoothLondonMP3	0	direct
-Smooth Chill	https://media-ssl.musicradio.com/ChillMP3	0	direct
-Classic FM	https://media-ssl.musicradio.com/ClassicFMMP3	0	direct
+Capital London	https://media-ssl.musicradio.com/CapitalMP3	0	direct	/station-logos/capital.svg
+Capital XTRA London	https://media-ssl.musicradio.com/CapitalXTRALondonMP3	0	direct	/station-logos/capital.svg
+Capital Dance	https://icecast.thisisdax.com/CapitalDanceMP3	0	direct	/station-logos/capital.svg
+Heart London	https://media-ssl.musicradio.com/HeartLondonMP3	0	direct	/station-logos/heart.svg
+Heart 80s	https://media-ssl.musicradio.com/Heart80sMP3	0	direct	/station-logos/heart.svg
+Heart Dance	https://media-ssl.musicradio.com/HeartDanceMP3	0	direct	/station-logos/heart.svg
+Smooth London	https://media-ssl.musicradio.com/SmoothLondonMP3	0	direct	/station-logos/smooth.svg
+Smooth Chill	https://media-ssl.musicradio.com/ChillMP3	0	direct	/station-logos/smooth.svg
+Classic FM	https://media-ssl.musicradio.com/ClassicFMMP3	0	direct	/station-logos/classic-fm.svg
 Gold	https://media-ssl.musicradio.com/GoldMP3	0	direct
 Radio X London	https://media-ssl.musicradio.com/RadioXLondonMP3	0	direct
-LBC UK	https://media-ssl.musicradio.com/LBCUK	0	direct
-LBC London	https://media-ssl.musicradio.com/LBCLondon	0	direct
-LBC News	https://media-ssl.musicradio.com/LBCNewsUK	0	direct
+LBC UK	https://media-ssl.musicradio.com/LBCUK	0	direct	/station-logos/lbc.svg
+LBC London	https://media-ssl.musicradio.com/LBCLondon	0	direct	/station-logos/lbc.svg
+LBC News	https://media-ssl.musicradio.com/LBCNewsUK	0	direct	/station-logos/lbc.svg
 
 # Bauer / Rayo
-Absolute Radio	https://stream-ar.hellorayo.co.uk/absoluteradiohigh.aac?direct=true&aw_0_1st.playerid=BMUK_Airable&aw_0_1st.skey=6778249992&aw_0_1st.bauer_loggedin=true	0	direct
-Absolute 80s	https://stream-ar.hellorayo.co.uk/absolute80shigh.aac?direct=true&aw_0_1st.playerid=BMUK_Airable&aw_0_1st.skey=6778249992&aw_0_1st.bauer_loggedin=true	0	direct
-Absolute 90s	http://stream-ar.planetradio.co.uk/absolute90shigh.aac?direct=true&aw_0_1st.playerid=BMUK_Airable&aw_0_1st.skey=6778249992&aw_0_1st.bauer_loggedin=true	0	direct
+Absolute Radio	https://stream-ar.hellorayo.co.uk/absoluteradiohigh.aac?direct=true&aw_0_1st.playerid=BMUK_Airable&aw_0_1st.skey=6778249992&aw_0_1st.bauer_loggedin=true	0	direct	/station-logos/absolute.svg
+Absolute 80s	https://stream-ar.hellorayo.co.uk/absolute80shigh.aac?direct=true&aw_0_1st.playerid=BMUK_Airable&aw_0_1st.skey=6778249992&aw_0_1st.bauer_loggedin=true	0	direct	/station-logos/absolute.svg
+Absolute 90s	http://stream-ar.planetradio.co.uk/absolute90shigh.aac?direct=true&aw_0_1st.playerid=BMUK_Airable&aw_0_1st.skey=6778249992&aw_0_1st.bauer_loggedin=true	0	direct	/station-logos/absolute.svg
 Magic Radio UK	https://stream-mz.hellorayo.co.uk/magicnational.mp3?direct=true&aw_0_1st.playerid=BMUK_TuneIn&aw_0_1st.skey=7374499933&stationCode=mag	0	direct
-KISS UK	https://live-kiss.sharp-stream.com/kiss100.mp3	0	direct
-KISSTORY	https://live-bauerkiss.sharp-stream.com/kisstory.aac?direct=true&aw_0_1st.playerid=BMUK_Airable&aw_0_1st.skey=6778249992	0	direct
+KISS UK	https://live-kiss.sharp-stream.com/kiss100.mp3	0	direct	/station-logos/kiss.svg
+KISSTORY	https://live-bauerkiss.sharp-stream.com/kisstory.aac?direct=true&aw_0_1st.playerid=BMUK_Airable&aw_0_1st.skey=6778249992	0	direct	/station-logos/kiss.svg
 Planet Rock	https://stream-mz.hellorayo.co.uk/planetrock.aac?direct=true&aw_0_1st.playerid=BMUK_Airable&aw_0_1st.skey=6778249992	0	direct
 
 # London community and specialist

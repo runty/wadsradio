@@ -115,6 +115,7 @@ function App() {
   const [playlistError, setPlaylistError] = useState('')
   const [favoriteStations, setFavoriteStations] = useState<Station[]>(() => loadFavoriteStations())
   const [currentStationId, setCurrentStationId] = useState(() => loadLastStationId())
+  const [playbackStation, setPlaybackStation] = useState<Station | null>(null)
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<PlaybackStatus>('idle')
   const [volume, setVolume] = useState(() => loadVolume())
@@ -148,7 +149,7 @@ function App() {
   )
 
   const currentStation =
-    stations.find((station) => station.id === currentStationId) ?? stations[0] ?? DEFAULT_STATIONS[0]
+    playbackStation ?? stations.find((station) => station.id === currentStationId) ?? stations[0] ?? DEFAULT_STATIONS[0]
 
   const filteredStations = useMemo(() => {
     const cleanQuery = query.trim().toLowerCase()
@@ -350,6 +351,7 @@ function App() {
     audioStationIdRef.current = station.id
 
     setCurrentStationId(station.id)
+    setPlaybackStation(station)
     setStatus('loading')
     audio.volume = volume
 
@@ -486,11 +488,13 @@ function App() {
   function moveStation(direction: 1 | -1) {
     if (stations.length === 0) return
 
-    const currentIndex = Math.max(
-      0,
-      stations.findIndex((station) => station.id === currentStation?.id),
-    )
-    const nextIndex = (currentIndex + direction + stations.length) % stations.length
+    const currentIndex = stations.findIndex((station) => station.id === currentStation?.id)
+    const nextIndex =
+      currentIndex === -1
+        ? direction === 1
+          ? 0
+          : stations.length - 1
+        : (currentIndex + direction + stations.length) % stations.length
     playStation(stations[nextIndex])
   }
 
@@ -904,6 +908,12 @@ function App() {
                           src={stationLogo.url}
                           alt=""
                           loading="lazy"
+                          onLoad={(event) => {
+                            const image = event.currentTarget
+                            if (isLowQualityFavicon(image.src, image.naturalWidth)) {
+                              image.remove()
+                            }
+                          }}
                           onError={(event) => {
                             event.currentTarget.remove()
                           }}
@@ -1056,7 +1066,7 @@ function loadFavoriteStations(): Station[] {
 function sanitizeFavoriteStations(stations: Station[]): Station[] {
   return stations
     .filter((station) => station.name && station.url)
-    .map((station) => ({ ...station, favorite: true }))
+    .map((station) => ({ ...station, favorite: true, logoUrl: normalizeStationLogoUrl(station.logoUrl) || undefined }))
 }
 
 function loadVolume(): number {
@@ -1300,14 +1310,72 @@ function getMediaFacts(metadata: MediaInfo | null): Array<{ detail?: string; lab
 }
 
 function getStationLogo(station: Station): { accent: string; initials: string; url: string } {
+  const curatedLogoUrl = normalizeStationLogoUrl(station.logoUrl) || getCuratedStationLogoUrl(station)
   const domain = getStationLogoDomain(station)
 
   return {
     accent: getStationAccent(station),
     initials: getStationInitials(station.name),
-    url: domain ? `https://www.google.com/s2/favicons?domain_url=${encodeURIComponent(`https://${domain}`)}&sz=128` : '',
+    url: curatedLogoUrl || (domain ? `https://www.google.com/s2/favicons?domain_url=${encodeURIComponent(`https://${domain}`)}&sz=128` : ''),
   }
 }
+
+function normalizeStationLogoUrl(value: unknown): string {
+  const cleanValue = String(value ?? '').trim()
+  if (!cleanValue) return ''
+  return /^(https?:\/\/|data:image\/|\/)/i.test(cleanValue) ? cleanValue : ''
+}
+
+function getCuratedStationLogoUrl(station: Station): string {
+  const searchable = `${station.name} ${station.url}`.toLowerCase()
+  const logo = CURATED_STATION_LOGOS.find(({ pattern }) => pattern.test(searchable))
+  return logo?.url ?? ''
+}
+
+const CURATED_STATION_LOGOS: Array<{ pattern: RegExp; url: string }> = [
+  { pattern: /\bcbc\b|cbcradiolive|cfykfm_cbc/i, url: '/station-logos/cbc.svg' },
+  { pattern: /\bici (premiere|musique)\b|radio-canada|rcavliveaudio/i, url: '/station-logos/radio-canada.svg' },
+  { pattern: /\bbbc\b|bbc_/i, url: '/station-logos/bbc.svg' },
+  { pattern: /\bnpr\b/i, url: '/station-logos/npr.svg' },
+  { pattern: /\bkexp\b/i, url: '/station-logos/kexp.svg' },
+  { pattern: /\bkuow\b/i, url: '/station-logos/kuow.svg' },
+  { pattern: /\bjazz24\b/i, url: '/station-logos/jazz24.svg' },
+  { pattern: /\bknkx\b/i, url: '/station-logos/knkx.svg' },
+  { pattern: /\bking fm\b|classicalking/i, url: '/station-logos/king-fm.svg' },
+  { pattern: /\bkcrw\b/i, url: '/station-logos/kcrw.svg' },
+  { pattern: /\blaist\b|kpcc/i, url: '/station-logos/laist.svg' },
+  { pattern: /\bwnyc\b/i, url: '/station-logos/wnyc.svg' },
+  { pattern: /\bwqxr\b|new sounds/i, url: '/station-logos/wqxr.svg' },
+  { pattern: /\bkqed\b/i, url: '/station-logos/kqed.svg' },
+  { pattern: /\bopb\b/i, url: '/station-logos/opb.svg' },
+  { pattern: /\brthk\b/i, url: '/station-logos/rthk.svg' },
+  { pattern: /\bmetro (finance|info|plus)\b/i, url: '/station-logos/metro-radio.svg' },
+  { pattern: /\baxr\b/i, url: '/station-logos/axr.svg' },
+  { pattern: /\bmediacorp\b/i, url: '/station-logos/mediacorp.svg' },
+  { pattern: /\bmoney fm\b|money_893/i, url: '/station-logos/money-fm.svg' },
+  { pattern: /\bone fm\b|one_fm_913/i, url: '/station-logos/one-fm.svg' },
+  { pattern: /\bufm ?100\.?3\b|ufm_1003/i, url: '/station-logos/ufm.svg' },
+  { pattern: /\bhao fm\b|hao_963/i, url: '/station-logos/hao-fm.svg' },
+  { pattern: /\bpower ?98\b|power98/i, url: '/station-logos/power98.svg' },
+  { pattern: /\b88\.?3 ?jia\b|883jia|harrys_s02/i, url: '/station-logos/jia883.svg' },
+  { pattern: /\bfip\b/i, url: '/station-logos/fip.svg' },
+  { pattern: /\bfrance (inter|info|culture|musique|bleu)\b|\bici paris\b|\bmouv\b|radiofrance/i, url: '/station-logos/radio-france.svg' },
+  { pattern: /\brfi\b/i, url: '/station-logos/rfi.svg' },
+  { pattern: /\brtl2?\b/i, url: '/station-logos/rtl.svg' },
+  { pattern: /\beurope [12]\b/i, url: '/station-logos/europe1.svg' },
+  { pattern: /\bnrj\b|nostalgie|cherie fm|rire et chansons/i, url: '/station-logos/nrj.svg' },
+  { pattern: /\bvirgin radio\b/i, url: '/station-logos/virgin.svg' },
+  { pattern: /\bcapital\b/i, url: '/station-logos/capital.svg' },
+  { pattern: /\bheart\b/i, url: '/station-logos/heart.svg' },
+  { pattern: /\bsmooth\b/i, url: '/station-logos/smooth.svg' },
+  { pattern: /\bclassic fm\b/i, url: '/station-logos/classic-fm.svg' },
+  { pattern: /\blbc\b/i, url: '/station-logos/lbc.svg' },
+  { pattern: /\babsolute\b/i, url: '/station-logos/absolute.svg' },
+  { pattern: /\bkiss(tory|92)?\b|kiss_92/i, url: '/station-logos/kiss.svg' },
+  { pattern: /\bsomafm\b|soma fm|groove salad/i, url: '/station-logos/somafm.svg' },
+  { pattern: /\bradio paradise\b|radioparadise/i, url: '/station-logos/radio-paradise.svg' },
+  { pattern: /\bwfmu\b/i, url: '/station-logos/wfmu.svg' },
+]
 
 function getStationLogoDomain(station: Station): string {
   const searchable = `${station.name} ${station.url}`.toLowerCase()
@@ -1323,11 +1391,60 @@ function getStationLogoDomain(station: Station): string {
   if (known) return known.domain
 
   try {
-    return new URL(station.url).hostname.replace(/^www\./, '')
+    const hostname = new URL(station.url).hostname.replace(/^www\./, '')
+    return isGenericStreamHost(hostname) ? '' : hostname
   } catch {
     return ''
   }
 }
+
+function isGenericStreamHost(hostname: string): boolean {
+  return isIpAddressHost(hostname) || GENERIC_STREAM_HOSTS.some((pattern) => pattern.test(hostname))
+}
+
+function isLowQualityFavicon(src: string, naturalWidth: number): boolean {
+  return /google\.com\/s2\/favicons/i.test(src) && naturalWidth > 0 && naturalWidth <= 32
+}
+
+function isIpAddressHost(hostname: string): boolean {
+  return /^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname) || /^\[[0-9a-f:]+\]$/i.test(hostname)
+}
+
+const GENERIC_STREAM_HOSTS = [
+  /(^|\.)akamaized\.net$/,
+  /(^|\.)amperwave\.net$/,
+  /(^|\.)asurahosting\.com$/,
+  /(^|\.)audiocdn\.com$/,
+  /(^|\.)cdn77\.org$/,
+  /(^|\.)cdnstream1\.com$/,
+  /(^|\.)cloudfront\.net$/,
+  /(^|\.)creacast\.com$/,
+  /(^|\.)hellorayo\.co\.uk$/,
+  /(^|\.)icecast\./,
+  /(^|\.)infomaniak\.ch$/,
+  /(^|\.)jpbgdigital\.com$/,
+  /(^|\.)leanstream\.co$/,
+  /(^|\.)live365\.com$/,
+  /(^|\.)liveboxstream\.uk$/,
+  /(^|\.)live\.streamtheworld\.com$/,
+  /(^|\.)musicradio\.com$/,
+  /(^|\.)onestreaming\.com$/,
+  /(^|\.)playerservices\.streamtheworld\.com$/,
+  /(^|\.)planetradio\.co\.uk$/,
+  /(^|\.)radiojar\.com$/,
+  /(^|\.)radioking\.com$/,
+  /(^|\.)radioboss\.fm$/,
+  /(^|\.)rcs\.revma\.com$/,
+  /(^|\.)revma\./,
+  /(^|\.)securenetsystems\.net$/,
+  /(^|\.)sharp-stream\.com$/,
+  /(^|\.)streamb\.live$/,
+  /(^|\.)streamguys\d*\.com$/,
+  /(^|\.)streamlock\.net$/,
+  /(^|\.)streamon\.fm$/,
+  /(^|\.)streeemer\.com$/,
+  /(^|\.)tunein\.cdnstream1\.com$/,
+]
 
 function getStationInitials(name: string): string {
   const words = name
